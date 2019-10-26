@@ -3,4 +3,9 @@
 
 .container {
   position: absolute;
+  width: 200px;
+
+  > :not(:first-child) {
+    margin-top: 15px;
+  }
 }

@@ -42,6 +42,7 @@ input,
 select,
 textarea {
   border-color: transparent;
+  background-color: transparent;
 
   &:focus {
     outline: 0;

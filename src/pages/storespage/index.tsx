@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import style from "./styles.scss"
 import { CardFootnote } from "~/components/card/card-footnote"
 import { CardInfo } from "~/components/card/card-info"
@@ -11,63 +11,121 @@ import { StoreList } from "~/components/store/store-list"
 import { StoreItem, StoreValue } from "~/components/store/store-item"
 import { PeerMenu } from "~/components/region/peer-menu"
 import { PeerList, PeerValue, RegionValue } from "~/components/region/peer-item"
-import { dummyStore, dummyStoreList, dummyStore1, dummyPeer, genDummyStore } from "./dummy"
-import { transferLeader, fetchStores, deleteStore, upStore, fetchAllRegions, fetchRegion, addEvictLeaderScheduler, removeEvictLeaderScheduler, RegionResp } from "~/api"
+import { genDummyStore } from "./dummy"
+import {
+  fetchMaxReplicas,
+  transferLeader,
+  fetchAllStores,
+  deleteStore,
+  upStore,
+  fetchAllRegions,
+  fetchRegion,
+  addEvictLeaderScheduler,
+  removeEvictLeaderScheduler,
+  listSchedulers,
+  queryHotRead,
+} from "~/api"
+import { fetchStoreValues } from "~api_converter"
+
+const randDummyStoreList: StoreValue[] = genDummyStore(10)
 
 export const StoresPage: React.FunctionComponent = props => {
-  const [regionFilterAttr, setRegionFilterAttr] = useState({
-    normal: false,
+  const [regionFilter, setRegionFilter] = useState({
+    normal: true,
     inAction: true,
     error: true,
   })
+  const [storeList, setStoreList] = useState<StoreValue[]>([])
 
-  const [searchInput, setSearchInput] = useState("")
+  useEffect(() => {
+    const id = setInterval(async () => {
+      const stores = await fetchStoreValues()
+      setStoreList(stores)
+    }, 1000)
+    return () => {
+      clearInterval(id)
+    }
+  }, [props])
 
-  const randDummyStoreList: StoreValue[] = genDummyStore(10)
+  // const [searchInput, setSearchInput] = useState("")
 
   return (
-    <>
-      <ApiTester callme={() => fetchStores().then(j => console.log(j))} name={"test fetch stores"} />
-      <ApiTester callme={() => deleteStore(2).then(j => console.log(j))} name={"test delete store"} />
-      <ApiTester callme={() => upStore(2).then(j => console.log(j))} name={"test up store"} />
-      <ApiTester callme={() => fetchAllRegions().then(j => console.log(j))} name={"test fetch regions of store"} />
-      <ApiTester callme={() => fetchRegion(84).then(j => console.log(j))} name="test fetch a specific region" />
-      <ApiTester callme={() => addEvictLeaderScheduler(1).then(j => console.log(j))} name="test add a scheduler to evict leader" />
-      <ApiTester callme={() => removeEvictLeaderScheduler(1).then(j => console.log(j))} name="test remove a scheduler to evict leader" />
-
+    <div className={style["page-container"]}>
+      {/* <ApiTester
+        callme={() => fetchAllStores().then(j => console.log(j))}
+        name={"test fetch stores"}
+      />
+      <ApiTester
+        callme={() => deleteStore(2).then(j => console.log(j))}
+        name={"test delete store"}
+      />
+      <ApiTester
+        callme={() => upStore(2).then(j => console.log(j))}
+        name={"test up store"}
+      />
+      <ApiTester
+        callme={() => fetchAllRegions().then(j => console.log(j))}
+        name={"test fetch regions of store"}
+      />
+      <ApiTester
+        callme={() => fetchRegion(84).then(j => console.log(j))}
+        name="test fetch a specific region"
+      />
+      <ApiTester
+        callme={() => addEvictLeaderScheduler(1).then(j => console.log(j))}
+        name="test add a scheduler to evict leader"
+      />
+      <ApiTester
+        callme={() => removeEvictLeaderScheduler(1).then(j => console.log(j))}
+        name="test remove a scheduler to evict leader"
+      />
+      <ApiTester
+        callme={() => listSchedulers().then(j => console.log(j))}
+        name="test list schedulers"
+      />
+      <ApiTester
+        callme={() => fetchMaxReplicas().then(j => console.log(j))}
+        name="test fetch maxReplicas"
+      />
+      <ApiTester
+        callme={() => queryHotRead().then(j => console.log(j))}
+        name="test fetch hot read"
+      /> */}
       <Navigation />
       <div className={style["store-container"]}>
-        <h2>{"Stores & Regions"}</h2>
-        <Filter
-          regionAttr={regionFilterAttr}
-          onRegionAttrChange={newAttr => setRegionFilterAttr(newAttr)}
-          searchAttr={{
-            inputValue: searchInput,
-            onInputValueChange: (newValue: string) => {
-              setSearchInput(newValue)
-            },
-          }}
-        />
+        <div key={0} className={style["padding-container"]}>
+          <h2>{"Stores & Regions"}</h2>
+          <Filter
+            regionAttr={regionFilter}
+            onRegionAttrChange={newAttr => setRegionFilter(newAttr)}
+            onSearchInputChange={newValue => {}}
+          />
+        </div>
+        <div key={1} className={style["store-list-container"]}>
+          <StoreList
+            storeItems={storeList}
+            // storeItems={randDummyStoreList}
+            regionFilter={regionFilter}
+            onStoreUserAction={(store, action) => {
+              console.log(store, action)
+            }}
+            onPeerUserAction={(peer, action) => {
+              console.log(peer, action)
+            }}
+          />
+        </div>
       </div>
       {/* <StoreItem store={dummyStore} selection={{type:"none"}} onSelectionChange={()=>{}} />
       <StoreItem store={dummyStore} selection={{type:"store"}} onSelectionChange={()=>{}} /> */}
-      <StoreList
-        storeItems={randDummyStoreList}
-        onStoreUserAction={(store, action) => {
-          console.log(store, action)
-        }}
-        onPeerUserAction={(peer, action) => {
-          console.log(peer, action)
-        }}
-      />
-      <CardInteractTips title="Merge" tips="ecstas" onCancel={() => { }} />
-      <CardFootnote
+
+      {/* <CardInteractTips title="Merge" tips="ecstas" onCancel={() => { }} /> */}
+      {/* <CardFootnote
         isSelected={false}
         footnoteState="info"
         value="Hot Store"
         onMouseDown={() => { }}
-      />
-      <CardFootnote
+      /> */}
+      {/* <CardFootnote
         isSelected={true}
         footnoteState="error"
         value="Hot Store"
@@ -79,7 +137,7 @@ export const StoresPage: React.FunctionComponent = props => {
       />
       <CardAction
         actions={[
-          { name: "Split", onClick: () => { } },
+          { name: "Split Region", onClick: () => { } },
           { name: "Delete", onClick: () => { } },
         ]}
       />
@@ -94,39 +152,16 @@ export const StoresPage: React.FunctionComponent = props => {
         peers={[dummyPeer, dummyPeer, dummyPeer]}
         selectedPeer={null}
         onSelectedPeerChanged={() => { }}
-      />
+      /> */}
       {/* <PeerMenu
         peer={dummyPeer}
         onPeerUserAction={() => { }}
         onBlur={() => { }}
         offsetLeft={0}
       /> */}
-    </>
+    </div>
   )
 }
-
-// export async function fetchAll(): Promise<StoreValue[]> {
-//   const allPeers: Promise<PeerValue> = fetchAllRegions().then(rawRegions =>
-//     rawRegions.map(rawRegion => {
-
-//       // rawRegion.peers.flatMap()
-//       // const regionValue: RegionValue = {
-//       //   regionId: rawRegion.id.toString(),
-//       //   startKey: rawRegion.start_key,
-//       //   endKey: rawRegion.end_key,
-//       //   regionSize: rawRegion.approximate_size.toString(),
-//       //   peersCount: rawRegion.peers.length
-//       // }
-//       return null
-//     }
-//     ))
-//   // let a: RegionValue
-//   // let b: RegionResp
-  
-//   let c: PeerValue // errors: $URLROOT/regions/check/miss-peer $
-//   let d: StoreValue
-//   return []
-// }
 
 type ApiTesterProps = {
   callme: () => void
@@ -135,7 +170,8 @@ type ApiTesterProps = {
 
 const ApiTester: React.FunctionComponent<ApiTesterProps> = props => (
   <div>
-    <button onClick={props.callme}>{props.name ? props.name : "test me"}</button>
+    <button onClick={props.callme}>
+      {props.name ? props.name : "test me"}
+    </button>
   </div>
 )
-

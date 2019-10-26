@@ -4,13 +4,12 @@ import { CardFootnote } from "~/components/card/card-footnote"
 import { InfoTable } from "~/components/info-table"
 import { PeerValue, PeerList } from "~/components/region/peer-item"
 import { Selection, InteractionMode } from "../store-list"
+import { RegionFilterAttibute } from "~components/filter"
 
 export type StoreValue = {
   storeId: string
   capacity: string
   available: string
-  readQPS: string
-  writeQPS: string
 
   address: string
   tikvVersion: string
@@ -32,7 +31,12 @@ export type StoreValue = {
   peers: PeerValue[]
 }
 
-export type StoreState = "Up" | "Down" | "Offline" | "Tombstone"
+export type StoreState =
+  | "Up"
+  | "Down"
+  | "Offline"
+  | "Tombstone"
+  | "Disconnected"
 
 export type StoreScheduler = {
   evictingLeader: boolean
@@ -40,25 +44,42 @@ export type StoreScheduler = {
 
 export type StoreError =
   | {
-    type: "Hot Store"
-  }
+      type: "Hot Read"
+      flowBytes: number
+    }
   | {
-    type: "Store Down"
-    downFrom: Date
-  }
+      type: "Hot Write"
+      flowBytes: number
+    }
+  | {
+      type: "Store Down"
+      downFrom: String
+    }
+  | {
+      type: "Store Offline"
+      offlineFrom: String
+    }
+  | {
+      type: "Store Disconnected"
+      disconnectedFrom: String
+    }
 
 type StoreItemProps = {
   store: StoreValue
   selection: Selection
   interactionMode: InteractionMode
+  regionFilter: RegionFilterAttibute
   onSelectionChange: (selection: Selection) => void
 }
 
 export const StoreItem: React.FunctionComponent<StoreItemProps> = props => {
   const isStoreSelected =
-    props.selection.type == "store" && props.selection.store == props.store
-  const isStoreInteractMode = props.interactionMode.type == "peerTrySeclectStore"
-  const isStoreInteractTarget = props.interactionMode.type == "peerTrySeclectStore" && props.interactionMode.isTargetStore(props.store)
+    props.selection.type == "store" && props.selection.store.storeId == props.store.storeId
+  const isStoreInteractMode =
+    props.interactionMode.type == "peerTrySeclectStore"
+  const isStoreInteractTarget =
+    props.interactionMode.type == "peerTrySeclectStore" &&
+    props.interactionMode.isTargetStore(props.store)
 
   const cardRef = useRef<HTMLDivElement>(null)
 
@@ -67,7 +88,7 @@ export const StoreItem: React.FunctionComponent<StoreItemProps> = props => {
       if (cardRef != null) {
         // Interact mode
         if (props.interactionMode.type == "peerTrySeclectStore") {
-          e.stopPropagation();
+          e.stopPropagation()
           if (props.interactionMode.isTargetStore(props.store)) {
             props.interactionMode.onSelect(props.store)
           }
@@ -84,7 +105,7 @@ export const StoreItem: React.FunctionComponent<StoreItemProps> = props => {
         e.preventDefault()
         if (
           props.selection.type == "store" &&
-          props.selection.store == props.store
+          props.selection.store.storeId == props.store.storeId
         ) {
           props.onSelectionChange({ type: "none" })
         } else {
@@ -102,7 +123,11 @@ export const StoreItem: React.FunctionComponent<StoreItemProps> = props => {
   useEffect(() => {
     if (isStoreSelected && cardRef.current != null) {
       //TODO
-      cardRef.current.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" })
+      cardRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "nearest",
+      })
     }
   }, [props, isStoreSelected, cardRef])
 
@@ -129,8 +154,9 @@ export const StoreItem: React.FunctionComponent<StoreItemProps> = props => {
           infoEntries={[
             { name: "Capacity", value: props.store.capacity },
             { name: "Available", value: props.store.available },
-            { name: "Read", value: props.store.readQPS + " QPS" },
-            { name: "Write", value: props.store.writeQPS + " QPS" },
+            { name: "Regions", value: props.store.regionCount.toString() },
+            { name: "Leaders", value: props.store.leaderCount.toString() },
+            { name: "State", value: props.store.storeState },
           ]}
         />
 
@@ -141,31 +167,36 @@ export const StoreItem: React.FunctionComponent<StoreItemProps> = props => {
           selectedPeer={
             props.selection.type == "peer" ? props.selection.peer : null
           }
+          regionFilter={props.regionFilter}
           onSelectedPeerChanged={peer =>
             peer == null
               ? props.onSelectionChange({ type: "none" })
               : props.onSelectionChange({
-                type: "peer",
-                peer: peer,
-                cardRef: cardRef,
-              })
+                  type: "peer",
+                  peer: peer,
+                  cardRef: cardRef,
+                })
           }
         />
       </div>
 
-      {props.store.schedulers.evictingLeader ?
+      {props.store.schedulers.evictingLeader ? (
         <CardFootnote
           key={0}
           value="Evicting Leader"
           isSelected={isStoreSelected}
+          // isSelected={false}
           footnoteState="info"
           onMouseDown={onMouseDownStore}
         />
-        : <></>}
-      {props.store.errors.map(item => (
+      ) : (
+        <></>
+      )}
+      {props.store.errors.map((item, idx) => (
         <CardFootnote
-          key={1}
+          key={idx + 1}
           value={item.type}
+          // isSelected={false}
           isSelected={isStoreSelected}
           footnoteState="error"
           onMouseDown={onMouseDownStore}

@@ -1,0 +1,206 @@
+[
+    {
+      "desc": "remove-extra-offline-replica",
+      "brief": "rm peer: store 1",
+      "region_id": 11,
+      "region_epoch": {
+        "conf_ver": 6,
+        "version": 2
+      },
+      "kind": "leader,region,replica",
+      "steps": [
+        {
+          "type": "transfer_leader",
+          "from_store": 1,
+          "to_store": 2
+        },
+        {
+          "type": "remove_peer",
+          "from_store": 1
+        }
+      ],
+      "current_step": 0,
+      "create_time": "2019-10-26T18:32:49.170450925Z",
+      "start_time": "2019-10-26T18:32:49.170501561Z",
+      "step_time": 1572114769170451528,
+      "level": 2
+    },
+    {
+      "desc": "remove-extra-offline-replica",
+      "brief": "rm peer: store 1",
+      "region_id": 31,
+      "region_epoch": {
+        "conf_ver": 6,
+        "version": 6
+      },
+      "kind": "region,replica",
+      "steps": [
+        {
+          "type": "remove_peer",
+          "from_store": 1
+        }
+      ],
+      "current_step": 0,
+      "create_time": "2019-10-26T18:32:50.273972555Z",
+      "start_time": "2019-10-26T18:32:50.274054411Z",
+      "step_time": 1572114770273972691,
+      "level": 2
+    },
+    {
+      "desc": "remove-extra-offline-replica",
+      "brief": "rm peer: store 3",
+      "region_id": 39,
+      "region_epoch": {
+        "conf_ver": 5,
+        "version": 8
+      },
+      "kind": "leader,region,replica",
+      "steps": [
+        {
+          "type": "transfer_leader",
+          "from_store": 3,
+          "to_store": 1
+        },
+        {
+          "type": "remove_peer",
+          "from_store": 3
+        }
+      ],
+      "current_step": 1,
+      "create_time": "2019-10-26T18:32:48.263682419Z",
+      "start_time": "2019-10-26T18:32:48.263729989Z",
+      "step_time": 1572114769289435086,
+      "level": 2
+    },
+    {
+      "desc": "remove-extra-offline-replica",
+      "brief": "rm peer: store 3",
+      "region_id": 47,
+      "region_epoch": {
+        "conf_ver": 5,
+        "version": 10
+      },
+      "kind": "leader,region,replica",
+      "steps": [
+        {
+          "type": "transfer_leader",
+          "from_store": 3,
+          "to_store": 1
+        },
+        {
+          "type": "remove_peer",
+          "from_store": 3
+        }
+      ],
+      "current_step": 1,
+      "create_time": "2019-10-26T18:32:48.467269418Z",
+      "start_time": "2019-10-26T18:32:48.467326024Z",
+      "step_time": 1572114769432291145,
+      "level": 2
+    },
+    {
+      "desc": "remove-extra-offline-replica",
+      "brief": "rm peer: store 3",
+      "region_id": 55,
+      "region_epoch": {
+        "conf_ver": 5,
+        "version": 12
+      },
+      "kind": "leader,region,replica",
+      "steps": [
+        {
+          "type": "transfer_leader",
+          "from_store": 3,
+          "to_store": 1
+        },
+        {
+          "type": "remove_peer",
+          "from_store": 3
+        }
+      ],
+      "current_step": 1,
+      "create_time": "2019-10-26T18:32:48.667861341Z",
+      "start_time": "2019-10-26T18:32:48.667901685Z",
+      "step_time": 1572114769433341863,
+      "level": 2
+    },
+    {
+      "desc": "remove-extra-offline-replica",
+      "brief": "rm peer: store 1",
+      "region_id": 19,
+      "region_epoch": {
+        "conf_ver": 6,
+        "version": 3
+      },
+      "kind": "leader,region,replica",
+      "steps": [
+        {
+          "type": "transfer_leader",
+          "from_store": 1,
+          "to_store": 2
+        },
+        {
+          "type": "remove_peer",
+          "from_store": 1
+        }
+      ],
+      "current_step": 0,
+      "create_time": "2019-10-26T18:32:49.270622745Z",
+      "start_time": "2019-10-26T18:32:49.270671112Z",
+      "step_time": 1572114769270623225,
+      "level": 2
+    },
+    {
+      "desc": "remove-extra-offline-replica",
+      "brief": "rm peer: store 1",
+      "region_id": 27,
+      "region_epoch": {
+        "conf_ver": 6,
+        "version": 5
+      },
+      "kind": "leader,region,replica",
+      "steps": [
+        {
+          "type": "transfer_leader",
+          "from_store": 1,
+          "to_store": 2
+        },
+        {
+          "type": "remove_peer",
+          "from_store": 1
+        }
+      ],
+      "current_step": 0,
+      "create_time": "2019-10-26T18:32:49.77240545Z",
+      "start_time": "2019-10-26T18:32:49.772454996Z",
+      "step_time": 1572114769772405933,
+      "level": 2
+    },
+    {
+      "desc": "remove-extra-offline-replica",
+      "brief": "rm peer: store 3",
+      "region_id": 35,
+      "region_epoch": {
+        "conf_ver": 5,
+        "version": 7
+      },
+      "kind": "leader,region,replica",
+      "steps": [
+        {
+          "type": "transfer_leader",
+          "from_store": 3,
+          "to_store": 1
+        },
+        {
+          "type": "remove_peer",
+          "from_store": 3
+        }
+      ],
+      "current_step": 1,
+      "create_time": "2019-10-26T18:32:48.163447168Z",
+      "start_time": "2019-10-26T18:32:48.163516544Z",
+      "step_time": 1572114769289963420,
+      "level": 2
+    }
+  ]
+  

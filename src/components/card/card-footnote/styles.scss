@@ -4,17 +4,21 @@
 
 .container {
   @include card;
-  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  margin-top: 18px;
 
   p {
     color: $grey-7;
     text-align: center;
-    font-size: 13px;
+    font-size: 10px;
   }
 
   &.selected {
     @include card-selected;
-    background-color: darken(white, 10%);
+    background-color: $card-background-color;
   }
 
   &.error {
@@ -24,8 +28,8 @@
       color: $grey-1;
     }
 
-    &.selected {
-      background-color: darken($magenta, 10%);
-    }
+    // &.selected {
+    //   background-color: $card-background-color;
+    // }
   }
 }

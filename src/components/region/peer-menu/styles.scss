@@ -2,6 +2,10 @@
 @import "~/styles/layouts.scss";
 
 .container {
-    position: absolute;
-}
+  position: absolute;
+  width: 180px;
 
+  > :not(:first-child) {
+    margin-top: 15px;
+  }
+}

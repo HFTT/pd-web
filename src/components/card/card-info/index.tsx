@@ -11,6 +11,8 @@ export const CardInfo: React.FunctionComponent<CardInfoProps> = props => (
   <div className={style["container"]}>
     <h3>{props.title}</h3>
 
-    <InfoTable infoEntries={props.info} />
+    <div>
+      {props.info.length != 0 ? <InfoTable infoEntries={props.info} /> : <></>}
+    </div>
   </div>
 )

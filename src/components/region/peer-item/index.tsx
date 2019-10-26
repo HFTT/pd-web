@@ -1,6 +1,7 @@
-import React, { RefObject } from "react"
+import React, { RefObject, useEffect, useRef } from "react"
 import style from "./styles.scss"
 import { PeerTagList, PeerTagValue } from "../peer-tag"
+import { RegionFilterAttibute } from "~components/filter"
 
 export type PeerValue = {
   peerId: string
@@ -14,31 +15,69 @@ export type RegionValue = {
   regionId: string
   startKey: string
   endKey: string
-  regionSize: string
+  regionSize: number
   peersCount: number
 }
 
-export type PeerState = "Leader" | "Follower" | "Learner" | "Pending"
+export type PeerState =
+  | "Leader"
+  | "Follower"
+  | "Learner"
+  | "Pending"
+  | "Not Exists"
 
-export type PeerInAction = {
-  type: "Adding"
-}
+export type PeerInAction =
+  | {
+    type: "Adding Learner"
+  }
+  | {
+    type: "Promoting Learner"
+  }
+  | {
+    type: "Transfer Leader"
+    targetStore: number
+  }
+  | {
+    type: "Removing"
+  }
+  | {
+    type: "Spliting"
+    startKey: string
+    endKey: string
+    policy: string
+    splitKeys: string[]
+  }
+  | {
+    type: "Merging"
+    fromRegionId: string
+    toRegionId: string
+    isPassive: boolean
+  }
 
 export type PeerError =
   | {
-      type: "Missing Peer"
-      peers: number
-      expected: number
-    }
+    type: "Missing Peer"
+    peers: number
+    expected: number
+  }
   | {
-      type: "Extra Peer"
-      peers: number
-      expected: number
-    }
+    type: "Extra Peer"
+    peers: number
+    expected: number
+  }
+  | {
+    type: "Hot Read"
+    flowBytes: number
+  }
+  | {
+    type: "Hot Write"
+    flowBytes: number
+  }
 
 type PeerListProps = {
   peers: PeerValue[]
   selectedPeer: PeerValue | null
+  regionFilter: RegionFilterAttibute
   onSelectedPeerChanged: (peer: PeerValue | null) => void
 }
 
@@ -50,14 +89,20 @@ type PeerProps = {
 
 export const PeerList: React.FunctionComponent<PeerListProps> = props => (
   <div className={style["list-container"]}>
-    {props.peers.map((item, idx) => (
-      <PeerItem
-        key={idx}
-        peer={item}
-        selectedPeer={props.selectedPeer}
-        onSelectedPeerChanged={props.onSelectedPeerChanged}
-      />
-    ))}
+    <div className={style["list-inner"]}>
+      {props.peers.map(item =>
+        shouldShowPeer(props.regionFilter, item) ? (
+          <PeerItem
+            key={item.peerId}
+            peer={item}
+            selectedPeer={props.selectedPeer}
+            onSelectedPeerChanged={props.onSelectedPeerChanged}
+          />
+        ) : (
+            <></>
+          )
+      )}
+    </div>
   </div>
 )
 
@@ -65,7 +110,21 @@ export const PeerItem: React.FunctionComponent<PeerProps> = props => {
   let isPeerSelected =
     props.selectedPeer != null && props.selectedPeer == props.peer
   let isRegionSelected =
-    props.selectedPeer != null && props.selectedPeer.region.regionId == props.peer.region.regionId
+    props.selectedPeer != null &&
+    props.selectedPeer.region.regionId == props.peer.region.regionId
+
+  const divRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (divRef.current != null && isRegionSelected) {
+      // divRef.current.focus({ preventScroll: true })
+      divRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "nearest",
+      })
+    }
+  }, [props])
 
   return (
     <div
@@ -82,17 +141,18 @@ export const PeerItem: React.FunctionComponent<PeerProps> = props => {
           props.onSelectedPeerChanged(props.peer)
         }
       }}
+      ref={divRef}
     >
       <div className={style["title-row"]}>
         <h4>{props.peer.region.regionId}</h4>
         {props.peer.peerState != "Follower" ? (
           <p>{props.peer.peerState}</p>
         ) : (
-          <></>
-        )}
+            <></>
+          )}
       </div>
       <PeerTagList tags={displayTag(props.peer.inActions, props.peer.errors)} />
-    </div>
+    </div >
   )
 }
 
@@ -109,4 +169,17 @@ function displayTag(
     type: "error",
   }))
   return inActionTags.concat(errorTags)
+}
+
+function shouldShowPeer(
+  regionFilter: RegionFilterAttibute,
+  peer: PeerValue
+): boolean {
+  return (
+    (peer.errors.length > 0 && regionFilter.error) ||
+    (peer.inActions.length > 0 && regionFilter.inAction) ||
+    (peer.errors.length == 0 &&
+      peer.inActions.length == 0 &&
+      regionFilter.normal)
+  )
 }

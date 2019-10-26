@@ -4,20 +4,34 @@
 
 .item {
     @include card;
-    background-color: white;
+    min-width: 170px;
+    border: 1px solid transparent;
 
     &.selected {
         @include card-selected;
-        background-color: $grey-1;
     }
-
     &.interact-mode {
-        background-color: yellow;
-
+        background-color: $card-selected-background-color;
+    }
+    &.interact-mode-selectable {
+        background-color: $card-background-color;
+        cursor: pointer;
+        border: 1px dashed #737373;
     }
 
-    &.interact-mode-selectable {
-        background-color: green;
+    h2 {
+        margin-top: 5px;
+        color: $green;
+        font-weight: 500;
+        font-size: 11px;
+        text-align: center;
+    }
+
+    h3 {
+        margin-top: 20px;
+        margin-bottom: 12px;
+        color: $grey-6;
+        font-size: 10px;
     }
 
     p {

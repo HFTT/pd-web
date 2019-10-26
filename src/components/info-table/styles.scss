@@ -2,9 +2,22 @@
 @import "~/styles/layouts.scss";
 
 .container {
+  width: 100%;
+
   td {
-    color: $grey-6;
+    color: $grey-5;
     font-family: $family-secondary;
-    font-size: 14px;
+    font-size: 10px;
+    font-weight: 500;
+    vertical-align: top;
+    white-space: overflow-wrap;
+    
+    &.name {
+      width: 50%;
+    }
+
+    &.value {
+      width: 50%;
+    }
   }
 }

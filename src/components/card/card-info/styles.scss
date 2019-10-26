@@ -6,9 +6,12 @@
   @include card;
 
   h3 {
-    color: $green;
-    text-align: center;
-    font-size: 14px;
-    font-weight: 500;
+    @include card-title;
+  }
+
+  div {
+    > :first-child {
+      margin-top: 15px;
+    }
   }
 }

@@ -2,12 +2,16 @@
 @import "~/styles/layouts.scss";
 
 .container {
-    width: 100%;
-    overflow-x: auto;
-    padding: 3px 3px 50px 3px;
+  width: 100%;
+  overflow-x: auto;
 }
 
 .inner {
-    position: relative;
-    display: flex;
+  position: relative;
+  display: flex;
+  padding: 30px;
+
+  > :not(:first-child) {
+    margin-left: 20px;
+  }
 }

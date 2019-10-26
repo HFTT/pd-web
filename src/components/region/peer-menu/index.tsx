@@ -15,11 +15,11 @@ export type PeerMenuProps = {
 }
 
 export type PeerUserAction =
-  | "Grant Leader"
   | "Add Peer"
   | "Transfer Peer"
-  | "Split"
-  | "Delete"
+  | "Delete Peer"
+  | "Grant Leader"
+  | "Split Region"
 
 export type PeerInteractActionType = "Transfer Peer" | "Add Peer"
 
@@ -34,7 +34,11 @@ export const PeerMenu: React.FunctionComponent<PeerMenuProps> = props => {
   useEffect(() => {
     if (divRef.current != null) {
       divRef.current.focus({ preventScroll: true })
-      divRef.current.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" })
+      divRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "nearest",
+      })
     }
   }, [props])
 
@@ -47,11 +51,16 @@ export const PeerMenu: React.FunctionComponent<PeerMenuProps> = props => {
       ref={divRef}
     >
       <CardInfo
-        title={props.peer.peerId}
+        title="Peer Info"
         info={[
-          { name: "Start Key", value: props.peer.region.startKey },
-          { name: "End Key", value: props.peer.region.endKey },
-          { name: "Size", value: props.peer.region.regionSize },
+          { name: "Region Id", value: props.peer.region.regionId },
+          { name: "Peer Id", value: props.peer.peerId },
+          // { name: "Start Key", value: props.peer.region.startKey },
+          // { name: "End Key", value: props.peer.region.endKey },
+          {
+            name: "Size",
+            value: props.peer.region.regionSize.toString() + " kvs",
+          },
           { name: "Peers", value: props.peer.region.peersCount.toString() },
           { name: "State", value: props.peer.peerState },
         ]}
@@ -64,26 +73,40 @@ export const PeerMenu: React.FunctionComponent<PeerMenuProps> = props => {
         <CardInfo title={item.type} info={displayInfo(item)} />
       ))}
 
-      {
-        props.interactAction == null ?
-          <CardAction
-            actions={availableActions(props.peer, props.onPeerUserAction)}
-          /> :
-          <CardInteractTips
-            title={props.interactAction.type}
-            tips={displayInteractTips(props.interactAction.type)}
-            onCancel={props.interactAction.onCancel}
-          />
-      }
-
+      {props.interactAction == null ? (
+        <CardAction
+          actions={availableActions(props.peer, props.onPeerUserAction)}
+        />
+      ) : (
+        <CardInteractTips
+          title={props.interactAction.type}
+          tips={displayInteractTips(props.interactAction.type)}
+          onCancel={props.interactAction.onCancel}
+        />
+      )}
     </div>
   )
 }
 
 function displayInfo(info: PeerInAction | PeerError): InfoEntry[] {
   switch (info.type) {
-    case "Adding":
-      return []
+    case "Transfer Leader":
+      return [{ name: "Target Store", value: info.targetStore.toString() }]
+    case "Spliting":
+      return [
+        { name: "Start Key", value: info.startKey },
+        { name: "End Key", value: info.endKey },
+        { name: "Split Keys", value: info.splitKeys.toString() },
+        { name: "Policy", value: info.policy },
+      ]
+    case "Merging":
+      return [
+        { name: "From Region", value: info.fromRegionId },
+        { name: "To Region", value: info.toRegionId },
+        { name: "Is Passive", value: info.isPassive.toString() },
+      ]
+    case "Transfer Leader":
+      return [{ name: "Target Store", value: info.targetStore.toString() }]
     case "Missing Peer":
       return [
         { name: "Peers", value: info.peers.toString() },
@@ -94,13 +117,21 @@ function displayInfo(info: PeerInAction | PeerError): InfoEntry[] {
         { name: "Peers", value: info.peers.toString() },
         { name: "Expects", value: info.expected.toString() },
       ]
+    case "Hot Read":
+      return [{ name: "Flow Bytes", value: info.flowBytes.toString() }]
+    case "Hot Write":
+      return [{ name: "Flow Bytes", value: info.flowBytes.toString() }]
+    default:
+      return []
   }
 }
 
 function displayInteractTips(intectAction: PeerInteractActionType): string {
   switch (intectAction) {
-    case "Add Peer": return "Add Peer Tips"
-    case "Transfer Peer": return "Transfer Peer Tips"
+    case "Add Peer":
+      return "Press a store to add a new replica to the new one.\n\nThis action only applies on stores not containing the same region"
+    case "Transfer Peer":
+      return "Press a store to tranfer this peer to the new one.\n\nThis action only applies on stores not containing the same region"
   }
 }
 
@@ -122,14 +153,20 @@ function availableActions(
       },
     },
     {
-      name: "Split",
+      name: "Delete Peer",
       onClick: () => {
-        onPeerUserAction("Split")
+        onPeerUserAction("Delete Peer")
+      },
+    },
+    {
+      name: "Split Region",
+      onClick: () => {
+        onPeerUserAction("Split Region")
       },
     },
   ]
 
-  if (peer.peerState == "Follower") {
+  if (peer.peerState != "Leader") {
     actions.push({
       name: "Grant Leader",
       onClick: () => {

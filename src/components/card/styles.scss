@@ -1,18 +1,31 @@
 @import "~/styles/variables.scss";
 @import "~/styles/layouts.scss";
 
-$card-width: 250px;
 $card-margin-top: 30px;
+$card-background-color: #fdfdfd;
+$card-selected-background-color: #f3f3f3;
 
 @mixin card {
-  width: $card-width;
-  min-width: $card-width;
-  padding: 10px;
-  border-radius: 15px;
-  box-shadow: 0px 6px 26px rgba(0, 0, 0, 0.2);
-  background-color: white;
+  border-radius: 5px;
+  box-shadow: 0px 6px 28px rgba(0, 0, 0, 0.2);
+  background-color: $card-background-color;
+  padding: 14px;
 }
 
 @mixin card-selected {
-  box-shadow: 0px 6px 26px change-color($green, $alpha: 0.7);
+  background-color: $card-selected-background-color;
+  box-shadow: 0px 6px 28px change-color(#81bbb1, $alpha: 0.9);
+}
+
+@mixin card-title {
+  color: $green;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+@mixin card-button {
+  font-size: 11px;
+  font-weight: 500;
+  color: $grey-6;
 }

@@ -13,10 +13,12 @@ type InfoTableProps = {
 export const InfoTable: React.FunctionComponent<InfoTableProps> = props => (
   <table className={style["container"]}>
     {props.infoEntries.map((item, idx) => (
-      <tr key={idx}>
-        <td style-width="40%">{item.name}</td>
-        <td style-width="60%">{item.value}</td>
-      </tr>
+      <tbody>
+        <tr key={idx}>
+          <td style-width="40%">{item.name}</td>
+          <td style-width="60%">{item.value}</td>
+        </tr>
+      </tbody>
     ))}
   </table>
 )

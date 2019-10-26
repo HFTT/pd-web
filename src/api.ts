@@ -44,7 +44,10 @@ export type RegionResp = {
     }
     peers?: PeerResp[]
     leader?: PeerResp
-    down_peers?: PeerStatsResp
+    down_peers?: {
+        peer?: PeerResp
+        down_second?: number
+    }
     pending_peers?: PeerResp[]
     written_bytes?: number
     read_bytes?: number
@@ -54,37 +57,10 @@ export type RegionResp = {
     approximate_keys?: number
 }
 
-// ID          uint64              `json:"id"`
-// StartKey    string              `json:"start_key"`
-// EndKey      string              `json:"end_key"`
-// RegionEpoch *metapb.RegionEpoch `json:"epoch,omitempty"`
-// Peers       []*metapb.Peer      `json:"peers,omitempty"`
-// Leader          *metapb.Peer      `json:"leader,omitempty"`
-// DownPeers       []*pdpb.PeerStats `json:"down_peers,omitempty"`
-// PendingPeers    []*metapb.Peer    `json:"pending_peers,omitempty"`
-// WrittenBytes    uint64            `json:"written_bytes,omitempty"`
-// ReadBytes       uint64            `json:"read_bytes,omitempty"`
-// WrittenKeys     uint64            `json:"written_keys,omitempty"`
-// ReadKeys        uint64            `json:"read_keys,omitempty"`
-// ApproximateSize int64             `json:"approximate_size,omitempty"`
-// ApproximateKeys int64             `json:"approximate_keys,omitempty"`
-    
-// type RegionEpoch struct {
-// 	// Conf change version, auto increment when add or remove peer
-// 	ConfVer uint64 `protobuf:"varint,1,opt,name=conf_ver,json=confVer,proto3" json:"conf_ver,omitempty"`
-// 	// Region version, auto increment when split or merge
-// 	Version              uint64   `json:"version,omitempty"`
-// }
-
 type PeerResp = {
-	Id?: number
-	StoreId?: number
-	IsLearner?: boolean
-}
-
-type PeerStatsResp = {
-    peer?: PeerResp
-    down_second?: number
+    Id?: number
+    StoreId?: number
+    IsLearner?: boolean
 }
 
 export async function fetchStores(): Promise<StoresResp> {
@@ -98,10 +74,6 @@ export async function fetchAllRegions(): Promise<RegionResp[]> {
 export async function fetchRegion(regionId: number): Promise<RegionResp> {
     return await sendRequest(`${TANGENTA_APIROOT}/region/id/${regionId}`, "GET")
 }
-
-// export async function fetchMissingPeer(): Promise<PeerResp> {
-// return await sendRequest(`${}`)
-// }
 
 export async function upStore(storeId: number): Promise<any> {
     return await sendRequest(`${GAUFOO_APIROOT}/store/${storeId}/state?state=Up`, "POST")

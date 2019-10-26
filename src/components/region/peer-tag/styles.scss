@@ -1,0 +1,26 @@
+@import "~/styles/variables.scss";
+@import "~/styles/layouts.scss";
+
+.container {
+  color: $grey-1;
+  text-align: center;
+  font-size: 13px;
+  font-family: $family-secondary;
+}
+
+.peer-tag {
+  width: fit-content;
+  border-radius: 5px;
+  color: $grey-1;
+  text-align: center;
+  font-size: 13px;
+  font-family: $family-secondary;
+  font-weight: 500;
+
+  &.action {
+    background-color: $green;
+  }
+  &.error {
+    background-color: $magenta;
+  }
+}

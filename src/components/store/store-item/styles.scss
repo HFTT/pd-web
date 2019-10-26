@@ -1,0 +1,19 @@
+@import "~/styles/variables.scss";
+@import "~/styles/layouts.scss";
+@import "~/components/card/styles.scss";
+
+.item {
+    @include card;
+    background-color: white;
+
+    &.selected {
+        @include card-selected;
+        background-color: $grey-1;
+    }
+
+    p {
+        color: $grey-1;
+        text-align: center;
+        font-size: 13px;
+    }
+}

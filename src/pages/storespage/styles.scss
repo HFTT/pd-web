@@ -1,0 +1,13 @@
+@import "~/styles/variables.scss";
+@import "~/styles/layouts.scss";
+
+.store-container {
+  margin-bottom: 100px;
+  box-shadow: 0px 6px 26px rgba(0, 0, 0, 0.2);
+  padding: 30px 50px;
+  border-radius: 15px;
+
+  h2 {
+    font-size: 20px;
+  }
+}

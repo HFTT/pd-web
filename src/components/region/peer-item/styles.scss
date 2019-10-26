@@ -1,0 +1,35 @@
+@import "~/styles/variables.scss";
+@import "~/styles/layouts.scss";
+
+.list-container {
+  border-top: 1px dashed $grey-6;
+}
+
+.peer-container {
+  color: $grey-1;
+  text-align: center;
+  font-size: 13px;
+  font-family: $family-secondary;
+  border-bottom: 1px dashed $grey-6;
+
+  &.selected {
+    background-color: $grey-3;
+  }
+
+  .title-row {
+    display: flex;
+    justify-content: space-between;
+    font-family: $family-secondary;
+
+    h4 {
+      font-size: 13px;
+      color: $grey-7;
+    }
+
+    p {
+      color: $grey-7;
+      font-size: 13px;
+      font-weight: 500;
+    }
+  }
+}

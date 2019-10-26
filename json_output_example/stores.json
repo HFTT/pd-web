@@ -1,0 +1,74 @@
+{
+  "count": 3,
+  "stores": [
+    {
+      "store": {
+        "id": 1,
+        "address": "tikv1:20160",
+        "version": "4.0.0-alpha",
+        "state_name": "Up"
+      },
+      "status": {
+        "capacity": "143GiB",
+        "available": "89.69GiB",
+        "leader_count": 6,
+        "leader_weight": 1,
+        "leader_score": 6,
+        "leader_size": 6,
+        "region_count": 20,
+        "region_weight": 1,
+        "region_score": 20,
+        "region_size": 20,
+        "start_ts": "2019-10-25T01:52:15Z",
+        "last_heartbeat_ts": "2019-10-25T08:11:58.651970456Z",
+        "uptime": "6h19m43.651970456s"
+      }
+    },
+    {
+      "store": {
+        "id": 2,
+        "address": "tikv0:20160",
+        "version": "4.0.0-alpha",
+        "state_name": "Up"
+      },
+      "status": {
+        "capacity": "143GiB",
+        "available": "89.69GiB",
+        "leader_count": 8,
+        "leader_weight": 1,
+        "leader_score": 8,
+        "leader_size": 8,
+        "region_count": 20,
+        "region_weight": 1,
+        "region_score": 20,
+        "region_size": 20,
+        "start_ts": "2019-10-25T01:52:15Z",
+        "last_heartbeat_ts": "2019-10-25T08:11:58.634254888Z",
+        "uptime": "6h19m43.634254888s"
+      }
+    },
+    {
+      "store": {
+        "id": 3,
+        "address": "tikv2:20160",
+        "version": "4.0.0-alpha",
+        "state_name": "Up"
+      },
+      "status": {
+        "capacity": "143GiB",
+        "available": "89.69GiB",
+        "leader_count": 6,
+        "leader_weight": 1,
+        "leader_score": 6,
+        "leader_size": 6,
+        "region_count": 20,
+        "region_weight": 1,
+        "region_score": 20,
+        "region_size": 20,
+        "start_ts": "2019-10-25T01:52:15Z",
+        "last_heartbeat_ts": "2019-10-25T08:11:58.648994643Z",
+        "uptime": "6h19m43.648994643s"
+      }
+    }
+  ]
+}

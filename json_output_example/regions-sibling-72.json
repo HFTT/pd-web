@@ -1,0 +1,61 @@
+{
+  "count": 2,
+  "regions": [
+    {
+      "id": 68,
+      "start_key": "7480000000000000FF1F00000000000000F8",
+      "end_key": "7480000000000000FF2100000000000000F8",
+      "epoch": {
+        "conf_ver": 5,
+        "version": 16
+      },
+      "peers": [
+        {
+          "id": 69,
+          "store_id": 1
+        },
+        {
+          "id": 70,
+          "store_id": 2
+        },
+        {
+          "id": 71,
+          "store_id": 3
+        }
+      ],
+      "leader": {
+        "id": 69,
+        "store_id": 1
+      },
+      "approximate_size": 1
+    },
+    {
+      "id": 76,
+      "start_key": "7480000000000000FF2300000000000000F8",
+      "end_key": "7480000000000000FF2500000000000000F8",
+      "epoch": {
+        "conf_ver": 5,
+        "version": 18
+      },
+      "peers": [
+        {
+          "id": 77,
+          "store_id": 1
+        },
+        {
+          "id": 78,
+          "store_id": 2
+        },
+        {
+          "id": 79,
+          "store_id": 3
+        }
+      ],
+      "leader": {
+        "id": 79,
+        "store_id": 3
+      },
+      "approximate_size": 1
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+@import "~/styles/variables.scss";
+@import "~/styles/layouts.scss";
+
+.store-list-container {
+    display: inline-flex;
+    width: 100%;
+    overflow-x: auto;
+    padding: 3px 3px 50px 3px;
+}

@@ -1,0 +1,18 @@
+@import "~/styles/variables.scss";
+@import "~/styles/layouts.scss";
+
+$card-width: 250px;
+$card-margin-top: 30px;
+
+@mixin card {
+  width: $card-width;
+  min-width: $card-width;
+  padding: 10px;
+  border-radius: 15px;
+  box-shadow: 0px 6px 26px rgba(0, 0, 0, 0.2);
+  background-color: white;
+}
+
+@mixin card-selected {
+  box-shadow: 0px 6px 26px change-color($green, $alpha: 0.7);
+}

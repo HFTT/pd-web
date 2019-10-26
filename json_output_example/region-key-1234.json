@@ -1,0 +1,29 @@
+{
+  "id": 12,
+  "start_key": "",
+  "end_key": "7480000000000000FF0500000000000000F8",
+  "epoch": {
+    "conf_ver": 5,
+    "version": 2
+  },
+  "peers": [
+    {
+      "id": 13,
+      "store_id": 1
+    },
+    {
+      "id": 14,
+      "store_id": 2
+    },
+    {
+      "id": 15,
+      "store_id": 3
+    }
+  ],
+  "leader": {
+    "id": 15,
+    "store_id": 3
+  },
+  "approximate_size": 1,
+  "approximate_keys": 114
+}

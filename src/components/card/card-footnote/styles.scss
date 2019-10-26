@@ -1,0 +1,31 @@
+@import "~/styles/variables.scss";
+@import "~/styles/layouts.scss";
+@import "../styles.scss";
+
+.container {
+  @include card;
+  background-color: white;
+
+  p {
+    color: $grey-7;
+    text-align: center;
+    font-size: 13px;
+  }
+
+  &.selected {
+    @include card-selected;
+    background-color: darken(white, 10%);
+  }
+
+  &.error {
+    background-color: $magenta;
+
+    p {
+      color: $grey-1;
+    }
+
+    &.selected {
+      background-color: darken($magenta, 10%);
+    }
+  }
+}

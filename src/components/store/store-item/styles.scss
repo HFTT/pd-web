@@ -11,6 +11,15 @@
         background-color: $grey-1;
     }
 
+    &.interact-mode {
+        background-color: yellow;
+
+    }
+
+    &.interact-mode-selectable {
+        background-color: green;
+    }
+
     p {
         color: $grey-1;
         text-align: center;

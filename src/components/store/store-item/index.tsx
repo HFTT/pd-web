@@ -1,9 +1,9 @@
-import React, { RefObject, useRef, useCallback } from "react"
+import React, { RefObject, useRef, useCallback, useEffect } from "react"
 import style from "./styles.scss"
 import { CardFootnote } from "~/components/card/card-footnote"
 import { InfoTable } from "~/components/info-table"
 import { PeerValue, PeerList } from "~/components/region/peer-item"
-import { Selection } from "../store-list"
+import { Selection, InteractionMode } from "../store-list"
 
 export type StoreValue = {
   storeId: string
@@ -14,7 +14,7 @@ export type StoreValue = {
 
   address: string
   tikvVersion: string
-  stateName: string
+  storeState: StoreState
   leaderCount: number
   leaderWeight: number
   leaderScore: number
@@ -27,41 +27,61 @@ export type StoreValue = {
   latestHeartbeatTimestamp: string
   uptime: string
 
-  schedulers: StoreScheduler[]
+  schedulers: StoreScheduler
   errors: StoreError[]
   peers: PeerValue[]
 }
 
-export type StoreScheduler =
-  | {
-      type: "Evicting Leader"
-    }
-  | {
-      type: "Gathering Leader"
-    }
+export type StoreState = "Up" | "Down" | "Offline" | "Tombstone"
+
+export type StoreScheduler = {
+  evictingLeader: boolean
+}
 
 export type StoreError =
   | {
-      type: "Hot Store"
-    }
+    type: "Hot Store"
+  }
   | {
-      type: "Store is Down"
-      downFrom: Date
-    }
+    type: "Store Down"
+    downFrom: Date
+  }
 
 type StoreItemProps = {
   store: StoreValue
   selection: Selection
+  interactionMode: InteractionMode
   onSelectionChange: (selection: Selection) => void
 }
 
 export const StoreItem: React.FunctionComponent<StoreItemProps> = props => {
+  const isStoreSelected =
+    props.selection.type == "store" && props.selection.store == props.store
+  const isStoreInteractMode = props.interactionMode.type == "peerTrySeclectStore"
+  const isStoreInteractTarget = props.interactionMode.type == "peerTrySeclectStore" && props.interactionMode.isTargetStore(props.store)
+
   const cardRef = useRef<HTMLDivElement>(null)
+
+  const onMouseDownCaptureStore = useCallback(
+    (e: React.MouseEvent) => {
+      if (cardRef != null) {
+        // Interact mode
+        if (props.interactionMode.type == "peerTrySeclectStore") {
+          e.stopPropagation();
+          if (props.interactionMode.isTargetStore(props.store)) {
+            props.interactionMode.onSelect(props.store)
+          }
+        }
+      }
+    },
+    [props, cardRef]
+  )
 
   const onMouseDownStore = useCallback(
     (e: React.MouseEvent) => {
-      e.preventDefault()
       if (cardRef != null) {
+        // Select store
+        e.preventDefault()
         if (
           props.selection.type == "store" &&
           props.selection.store == props.store
@@ -79,19 +99,26 @@ export const StoreItem: React.FunctionComponent<StoreItemProps> = props => {
     [props, cardRef]
   )
 
-  let isStoreSelected =
-    props.selection.type == "store" && props.selection.store == props.store
+  useEffect(() => {
+    if (isStoreSelected && cardRef.current != null) {
+      //TODO
+      cardRef.current.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" })
+    }
+  }, [props, isStoreSelected, cardRef])
 
   return (
     <div
       className={style["container"]}
       onMouseDown={onMouseDownStore}
+      onMouseDownCapture={onMouseDownCaptureStore}
       ref={cardRef}
     >
       <div
         className={[
           style["item"],
           isStoreSelected ? style["selected"] : "",
+          isStoreInteractMode ? style["interact-mode"] : "",
+          isStoreInteractTarget ? style["interact-mode-selectable"] : "",
         ].join(" ")}
       >
         <h2>{props.store.storeId}</h2>
@@ -118,24 +145,26 @@ export const StoreItem: React.FunctionComponent<StoreItemProps> = props => {
             peer == null
               ? props.onSelectionChange({ type: "none" })
               : props.onSelectionChange({
-                  type: "peer",
-                  peer: peer,
-                  cardRef: cardRef,
-                })
+                type: "peer",
+                peer: peer,
+                cardRef: cardRef,
+              })
           }
         />
       </div>
 
-      {props.store.schedulers.map(item => (
+      {props.store.schedulers.evictingLeader ?
         <CardFootnote
-          value={item.type}
+          key={0}
+          value="Evicting Leader"
           isSelected={isStoreSelected}
           footnoteState="info"
           onMouseDown={onMouseDownStore}
         />
-      ))}
+        : <></>}
       {props.store.errors.map(item => (
         <CardFootnote
+          key={1}
           value={item.type}
           isSelected={isStoreSelected}
           footnoteState="error"

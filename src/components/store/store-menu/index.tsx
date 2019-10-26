@@ -11,7 +11,7 @@ type StoreMenuProps = {
   offsetLeft: number
 }
 
-export type StoreUserAction = "Delete" | "Up"
+export type StoreUserAction = "Up" | "Offline" | "Tombstone" | "Evict Leader" | "Stop Evict Leader"
 
 export const StoreMenu: React.FunctionComponent<StoreMenuProps> = props => {
   const divRef = useRef<HTMLDivElement | null>(null)
@@ -19,8 +19,11 @@ export const StoreMenu: React.FunctionComponent<StoreMenuProps> = props => {
   useEffect(() => {
     if (divRef.current != null) {
       divRef.current.focus({ preventScroll: true })
+      divRef.current.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" })
     }
   }, [props])
+
+  const actions = availableActions(props.store, props.onStoreUserAction)
 
   return (
     <div
@@ -36,7 +39,7 @@ export const StoreMenu: React.FunctionComponent<StoreMenuProps> = props => {
           { name: "Store Id", value: props.store.storeId },
           { name: "Address", value: props.store.address },
           { name: "TiKV Version", value: props.store.tikvVersion },
-          { name: "State Name", value: props.store.stateName },
+          { name: "Store State", value: props.store.storeState },
           { name: "Leader Count", value: props.store.leaderCount.toString() },
           { name: "Leader Weight", value: props.store.leaderWeight.toString() },
           { name: "Leader Score", value: props.store.leaderScore.toString() },
@@ -53,9 +56,13 @@ export const StoreMenu: React.FunctionComponent<StoreMenuProps> = props => {
           { name: "Up Time", value: props.store.uptime },
         ]}
       />
-      <CardAction
-        actions={availableActions(props.store, props.onStoreUserAction)}
-      />
+
+      {
+        actions.length > 0 ? <CardAction
+          actions={actions}
+        /> : <></>
+      }
+
     </div>
   )
 }
@@ -64,9 +71,21 @@ function availableActions(
   store: StoreValue,
   onStoreUserAction: (userStoreAction: StoreUserAction) => void
 ): UserAction[] {
-  return [
-    store.stateName === "Up"
-      ? { name: "Delete", onClick: () => onStoreUserAction("Delete") }
-      : { name: "Up", onClick: () => onStoreUserAction("Up") },
-  ]
+  let actions: UserAction[] = []
+  
+  if (store.schedulers.evictingLeader) {
+    actions.push({ name: "Stop Evict Leader", onClick: () => onStoreUserAction("Stop Evict Leader") })
+  } else {
+    actions.push({ name: "Evict Leader", onClick: () => onStoreUserAction("Evict Leader") })
+  }
+
+  switch (store.storeState) {
+    case "Up": actions.push({ name: "Offline", onClick: () => onStoreUserAction("Offline") }); break;
+    case "Offline":
+      actions.push({ name: "Up", onClick: () => onStoreUserAction("Up") })
+      actions.push({ name: "Tombstone", onClick: () => onStoreUserAction("Tombstone") })
+      break;
+  }
+
+  return actions
 }

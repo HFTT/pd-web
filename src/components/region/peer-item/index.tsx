@@ -65,7 +65,7 @@ export const PeerItem: React.FunctionComponent<PeerProps> = props => {
   let isPeerSelected =
     props.selectedPeer != null && props.selectedPeer == props.peer
   let isRegionSelected =
-    props.selectedPeer != null && props.selectedPeer.region == props.peer.region
+    props.selectedPeer != null && props.selectedPeer.region.regionId == props.peer.region.regionId
 
   return (
     <div
@@ -100,13 +100,13 @@ function displayTag(
   inActions: PeerInAction[],
   errors: PeerError[]
 ): PeerTagValue[] {
-  const errorTags: PeerTagValue[] = errors.map(item => ({
-    name: item.type,
-    type: "error",
-  }))
   const inActionTags: PeerTagValue[] = inActions.map(item => ({
     name: item.type,
     type: "inAction",
   }))
-  return errorTags.concat(inActionTags)
+  const errorTags: PeerTagValue[] = errors.map(item => ({
+    name: item.type,
+    type: "error",
+  }))
+  return inActionTags.concat(errorTags)
 }

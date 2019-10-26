@@ -4,9 +4,11 @@ import { CardAction, UserAction } from "~components/card/card-action"
 import { CardInfo } from "~components/card/card-info"
 import { InfoEntry } from "~components/info-table"
 import { PeerValue, PeerInAction, PeerError } from "../peer-item"
+import { CardInteractTips } from "~components/card/card-interact-tips"
 
 export type PeerMenuProps = {
   peer: PeerValue
+  interactAction: PeerInteractAction | null
   onPeerUserAction: (userAction: PeerUserAction) => void
   onBlur: () => void
   offsetLeft: number
@@ -14,9 +16,17 @@ export type PeerMenuProps = {
 
 export type PeerUserAction =
   | "Grant Leader"
+  | "Add Peer"
   | "Transfer Peer"
   | "Split"
   | "Delete"
+
+export type PeerInteractActionType = "Transfer Peer" | "Add Peer"
+
+export type PeerInteractAction = {
+  type: PeerInteractActionType
+  onCancel: () => void
+}
 
 export const PeerMenu: React.FunctionComponent<PeerMenuProps> = props => {
   const divRef = useRef<HTMLDivElement | null>(null)
@@ -24,6 +34,7 @@ export const PeerMenu: React.FunctionComponent<PeerMenuProps> = props => {
   useEffect(() => {
     if (divRef.current != null) {
       divRef.current.focus({ preventScroll: true })
+      divRef.current.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "nearest" })
     }
   }, [props])
 
@@ -53,9 +64,18 @@ export const PeerMenu: React.FunctionComponent<PeerMenuProps> = props => {
         <CardInfo title={item.type} info={displayInfo(item)} />
       ))}
 
-      <CardAction
-        actions={availableActions(props.peer, props.onPeerUserAction)}
-      />
+      {
+        props.interactAction == null ?
+          <CardAction
+            actions={availableActions(props.peer, props.onPeerUserAction)}
+          /> :
+          <CardInteractTips
+            title={props.interactAction.type}
+            tips={displayInteractTips(props.interactAction.type)}
+            onCancel={props.interactAction.onCancel}
+          />
+      }
+
     </div>
   )
 }
@@ -77,11 +97,30 @@ function displayInfo(info: PeerInAction | PeerError): InfoEntry[] {
   }
 }
 
+function displayInteractTips(intectAction: PeerInteractActionType): string {
+  switch (intectAction) {
+    case "Add Peer": return "Add Peer Tips"
+    case "Transfer Peer": return "Transfer Peer Tips"
+  }
+}
+
 function availableActions(
   peer: PeerValue,
   onPeerUserAction: (userAction: PeerUserAction) => void
 ): UserAction[] {
   let actions = [
+    {
+      name: "Add Peer",
+      onClick: () => {
+        onPeerUserAction("Add Peer")
+      },
+    },
+    {
+      name: "Transfer Peer",
+      onClick: () => {
+        onPeerUserAction("Transfer Peer")
+      },
+    },
     {
       name: "Split",
       onClick: () => {

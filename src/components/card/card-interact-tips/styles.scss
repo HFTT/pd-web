@@ -1,0 +1,30 @@
+@import "~/styles/variables.scss";
+@import "~/styles/layouts.scss";
+@import "../styles.scss";
+
+.container {
+  @include card;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  h3 {
+    color: $green;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  p {
+    margin-top: 20px;
+    color: green;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  button {
+    margin-top: 20px;
+    font-size: 17px;
+    font-weight: 700;
+    color: $grey-6;
+  }
+}

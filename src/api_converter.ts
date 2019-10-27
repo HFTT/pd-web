@@ -20,7 +20,13 @@ import {
   PeerError,
   PeerInAction,
 } from "~components/region/peer-item"
-import { StoreResp, OpStepResp, OperatorResp } from "~api_response"
+import {
+  StoreResp,
+  OpStepResp,
+  OperatorResp,
+  PeerResp,
+  RegionResp,
+} from "~api_response"
 import _ from "lodash"
 import { string } from "prop-types"
 
@@ -128,78 +134,31 @@ export async function fetchStoreValues(): Promise<StoreValue[]> {
         expected: maxReplicas,
       })
     }
-    for (const r of readHotRegionSet) {
-      if (r.id === regionValue.regionId) {
-        errors.push({
-          type: "Hot Read",
-          flowBytes: r.flowBytes,
-        })
-        break
-      }
+    const readHotRegion = readHotRegionSet.find(
+      r => r.id === regionValue.regionId
+    )
+    if (readHotRegion != null) {
+      errors.push({
+        type: "Hot Read",
+        flowBytes: readHotRegion.flowBytes,
+      })
     }
-    for (const w of writeHotRegionSet) {
-      if (w.id === regionValue.regionId) {
-        errors.push({
-          type: "Hot Write",
-          flowBytes: w.flowBytes,
-        })
-        break
-      }
-    }
-
-    let inActions: PeerInAction[] = []
-    for (const op of allOperators) {
-      if (op.region_id.toString() === regionValue.regionId) {
-        op.steps.forEach(s => {
-          switch (s.type) {
-            case "add_learner":
-            case "add_light_peer":
-            case "add_light_learner":
-              inActions.push({
-                type: "Adding Learner",
-              })
-            case "transfer_leader":
-              inActions.push({
-                type: "Transfer Leader",
-                targetStore: s.to_store,
-              })
-              break
-            case "promote_learner":
-              inActions.push({
-                type: "Promoting Learner",
-              })
-              break
-            case "remove_peer":
-              inActions.push({
-                type: "Removing",
-              })
-              break
-            case "merge_region":
-              inActions.push({
-                type: "Merging",
-                fromRegionId: s.from_region.id.toString(),
-                toRegionId: s.to_region.id.toString(),
-                isPassive: s.is_passive,
-              })
-              break
-            case "split_region":
-              inActions.push({
-                type: "Spliting",
-                startKey: s.start_key,
-                endKey: s.end_key,
-                policy: s.policy,
-                splitKeys: s.split_keys,
-              })
-              break
-            default:
-              break
-          }
-        })
-        break
-      }
+    const writeHotRegion = writeHotRegionSet.find(
+      w => w.id === regionValue.regionId
+    )
+    if (writeHotRegion != null) {
+      errors.push({
+        type: "Hot Write",
+        flowBytes: writeHotRegion.flowBytes,
+      })
     }
 
-    ; (regionResp.peers || []).forEach(p => {
+    const peers = regionResp.peers || []
+    const op = allOperators.find(
+      op => op.region_id.toString() === regionValue.regionId
+    )
+    const inActions = getInActions(peers, op)
+    peers.forEach(p => {
       let peerState: PeerState = "Follower"
       if (p.is_learner) {
         peerState = "Learner"
@@ -214,22 +173,22 @@ export async function fetchStoreValues(): Promise<StoreValue[]> {
         peerId: p.id ? p.id.toString() : "",
         peerState,
         region: regionValue,
-        inActions,
+        inActions: inActions[inStore],
         errors,
-        storeId: inStore
+        storeId: inStore,
       }
 
-      for (const s of storeValues) {
-        if (s.storeId === inStore) {
-          s.peers.push(peerValue)
-          break
-        }
+      const s = storeValues.find(s => s.storeId === inStore)
+      if (s != null) {
+        s.peers.push(peerValue)
       }
     })
   })
 
   for (const s of storeValues) {
-    s.peers.sort((a, b) => Number(a.region.regionId) < Number(b.region.regionId) ? -1 : 1)
+    s.peers = s.peers.sort((a, b) =>
+      Number(a.region.regionId) < Number(b.region.regionId) ? -1 : 1
+    )
   }
 
   // special case for non existing peers
@@ -239,10 +198,16 @@ export async function fetchStoreValues(): Promise<StoreValue[]> {
         case "add_learner":
         case "add_light_peer":
         case "add_light_learner":
-          const store = storeValues.find(store => store.storeId == step.to_store.toString())
-          const region = allRegions.find(region => region.regionId == op.region_id.toString())
+          const store = storeValues.find(
+            store => store.storeId == step.to_store.toString()
+          )
+          const region = allRegions.find(
+            region => region.regionId == op.region_id.toString()
+          )
           if (store != null && region != null) {
-            const peer = store.peers.find(peer => peer.region.regionId == op.region_id.toString())
+            const peer = store.peers.find(
+              peer => peer.region.regionId == op.region_id.toString()
+            )
             if (peer == null) {
               store.peers.push({
                 peerId: step.peer_id.toString(),
@@ -250,7 +215,7 @@ export async function fetchStoreValues(): Promise<StoreValue[]> {
                 region: region,
                 inActions: [{ type: "Adding Learner" }],
                 errors: [],
-                storeId: store.storeId
+                storeId: store.storeId,
               })
             }
           }
@@ -259,11 +224,13 @@ export async function fetchStoreValues(): Promise<StoreValue[]> {
     }
   }
 
-
-  return storeValues.sort((a, b) => a.storeId < b.storeId ? -1 : 1)
+  return storeValues.sort((a, b) => (a.storeId < b.storeId ? -1 : 1))
 }
 
-function containsEvictLeaderScheduler(schedulers: string[], storeId: string): StoreScheduler {
+function containsEvictLeaderScheduler(
+  schedulers: string[],
+  storeId: string
+): StoreScheduler {
   let found = false
   schedulers.forEach(s => {
     if (s.startsWith("evict-leader-scheduler") && s.endsWith(storeId)) {
@@ -321,4 +288,86 @@ function getStoreError(
   }
 
   return storeErrs
+}
+
+function getInActions(
+  peers: PeerResp[],
+  opResp: OperatorResp
+): { [peerId: string]: PeerInAction[] } {
+  for (const p of peers) {
+    inActions[_.defaultTo(p.id, 0).toString()] = []
+  }
+  op.steps.forEach(s => {
+    switch (s.type) {
+      case "add_learner":
+      case "add_light_peer":
+      case "add_light_learner":
+        inActions[s.peer_id].push({
+          type: "Adding Learner",
+        })
+      case "transfer_leader":
+        inActions[s.to_store].push({
+          type: "Transfer Leader",
+          targetStore: s.to_store,
+        })
+        const lid = getLeaderId(regionResp)
+        if (lid != null) {
+          inActions[lid].push({
+            type: "Transfer Leader",
+            targetStore: s.to_store,
+          })
+        }
+        break
+      case "promote_learner":
+        inActions[s.peer_id].push({
+          type: "Promoting Learner",
+        })
+        break
+      case "remove_peer":
+        const pid = getPeerId(s.from_store, peers)
+        if (pid != null) {
+          inActions[pid].push({
+            type: "Removing",
+          })
+        }
+        break
+      case "merge_region":
+        Object.keys(inActions).forEach(i => {
+          inActions[i].push({
+            type: "Merging",
+            fromRegionId: s.from_region.id.toString(),
+            toRegionId: s.to_region.id.toString(),
+            isPassive: s.is_passive,
+          })
+        })
+        break
+      case "split_region":
+        Object.keys(inActions).forEach(i => {
+          inActions[i].push({
+            type: "Spliting",
+            startKey: s.start_key,
+            endKey: s.end_key,
+            policy: s.policy,
+            splitKeys: s.split_keys,
+          })
+        })
+        break
+      default:
+        break
+    }
+  })
+}
+
+function getPeerId(storeId: number, peers: PeerResp[]): string | undefined {
+  for (const pr of peers) {
+    if (pr.store_id != null && pr.store_id === storeId) {
+      return _.defaultTo(pr.id, 0).toString()
+    }
+  }
+}
+
+function getLeaderId(regionResp: RegionResp): string | undefined {
+  if (regionResp.leader != null && regionResp.leader.id != null) {
+    return regionResp.leader.id.toString()
+  }
 }

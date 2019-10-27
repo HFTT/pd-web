@@ -10,8 +10,8 @@ export const dummyRegion = {
   peersCount: 2,
 }
 
-const genDummyRegion = () => ({
-  regionId: (Math.ceil(Math.random() * 14) + 22222).toString(),
+const genDummyRegion = (regionId: string) => ({
+  regionId: regionId,
   startKey: "1820000092123",
   endKey: "1932300000349",
   regionSize: 283718,
@@ -19,35 +19,35 @@ const genDummyRegion = () => ({
 })
 
 const genDummyPeer = (n: number) =>
-  new Array(n).fill(null).map(() => ({
+  new Array(n).fill(null).map((e, idx) => ({
     peerId: Math.ceil(Math.random() * 4000000).toString(),
     peerState: "Leader",
     inActions: [
       { type: "Adding Learner" },
-      { type: "Promoting Learner" },
-      { type: "Transfer Leader", targetStore: 3 },
-      { type: "Removing" },
-      {
-        type: "Spliting",
-        startKey: "32141246",
-        endKey: "2341251232",
-        policy: "approximate",
-        splitKeys: ["34552345", "2341234"],
-      },
-      {
-        type: "Merging",
-        fromRegionId: "32141246",
-        toRegionId: "2341251232",
-        isPassive: false,
-      },
+      // { type: "Promoting Learner" },
+      // { type: "Transfer Leader", targetStore: 3 },
+      // { type: "Removing" },
+      // {
+      //   type: "Spliting",
+      //   startKey: "32141246",
+      //   endKey: "2341251232",
+      //   policy: "approximate",
+      //   splitKeys: ["34552345", "2341234"],
+      // },
+      // {
+      //   type: "Merging",
+      //   fromRegionId: "32141246",
+      //   toRegionId: "2341251232",
+      //   isPassive: false,
+      // },
     ],
     errors: [
-      { type: "Missing Peer", peers: 2, expected: 3 },
-      { type: "Extra Peer", peers: 4, expected: 3 },
-      { type: "Hot Read", flowBytes: 3000 },
-      { type: "Hot Write", flowBytes: 3000 },
+      // { type: "Missing Peer", peers: 2, expected: 3 },
+      // { type: "Extra Peer", peers: 4, expected: 3 },
+      // { type: "Hot Read", flowBytes: 3000 },
+      // { type: "Hot Write", flowBytes: 3000 },
     ],
-    region: genDummyRegion(),
+    region: genDummyRegion(idx.toString()),
   }))
 
 export const genDummyStore = (n: number) =>

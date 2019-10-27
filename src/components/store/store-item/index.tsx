@@ -145,12 +145,13 @@ export const StoreItem: React.FunctionComponent<StoreItemProps> = props => {
           isStoreInteractTarget ? style["interact-mode-selectable"] : "",
         ].join(" ")}
       >
-        <h2>{props.store.storeId}</h2>
+        <h2>{props.store.address}</h2>
 
         <h3>Basic</h3>
 
         <InfoTable
           infoEntries={[
+            { name: "Store Id", value: props.store.storeId },
             { name: "Capacity", value: props.store.capacity },
             { name: "Available", value: props.store.available },
             { name: "Regions", value: props.store.regionCount.toString() },

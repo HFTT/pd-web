@@ -46,8 +46,6 @@ export const StoreMenu: React.FunctionComponent<StoreMenuProps> = props => {
       <CardInfo
         title="Store Info"
         info={[
-          { name: "Store Id", value: props.store.storeId },
-          { name: "Address", value: props.store.address },
           { name: "TiKV Version", value: props.store.tikvVersion },
           { name: "Leader Weight", value: props.store.leaderWeight.toString() },
           { name: "Leader Score", value: props.store.leaderScore.toString() },

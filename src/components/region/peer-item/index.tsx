@@ -29,51 +29,51 @@ export type PeerState =
 
 export type PeerInAction =
   | {
-    type: "Adding Learner"
-  }
+      type: "Adding Learner"
+    }
   | {
-    type: "Promoting Learner"
-  }
+      type: "Promoting Learner"
+    }
   | {
-    type: "Transfer Leader"
-    targetStore: number
-  }
+      type: "Transfer Leader"
+      targetStore: number
+    }
   | {
-    type: "Removing"
-  }
+      type: "Removing"
+    }
   | {
-    type: "Spliting"
-    startKey: string
-    endKey: string
-    policy: string
-    splitKeys: string[]
-  }
+      type: "Spliting"
+      startKey: string
+      endKey: string
+      policy: string
+      splitKeys: string[]
+    }
   | {
-    type: "Merging"
-    fromRegionId: string
-    toRegionId: string
-    isPassive: boolean
-  }
+      type: "Merging"
+      fromRegionId: string
+      toRegionId: string
+      isPassive: boolean
+    }
 
 export type PeerError =
   | {
-    type: "Missing Peer"
-    peers: number
-    expected: number
-  }
+      type: "Missing Peer"
+      peers: number
+      expected: number
+    }
   | {
-    type: "Extra Peer"
-    peers: number
-    expected: number
-  }
+      type: "Extra Peer"
+      peers: number
+      expected: number
+    }
   | {
-    type: "Hot Read"
-    flowBytes: number
-  }
+      type: "Hot Read"
+      flowBytes: number
+    }
   | {
-    type: "Hot Write"
-    flowBytes: number
-  }
+      type: "Hot Write"
+      flowBytes: number
+    }
 
 type PeerListProps = {
   peers: PeerValue[]
@@ -84,28 +84,34 @@ type PeerListProps = {
 
 type PeerProps = {
   peer: PeerValue
+  containerRef: React.RefObject<HTMLDivElement>
   selectedPeer: PeerValue | null
   onSelectedPeerChanged: (peer: PeerValue | null) => void
 }
 
-export const PeerList: React.FunctionComponent<PeerListProps> = props => (
-  <div className={style["list-container"]}>
-    <div className={style["list-inner"]}>
-      {props.peers.map(item =>
-        shouldShowPeer(props.regionFilter, item) ? (
-          <PeerItem
-            key={item.peerId}
-            peer={item}
-            selectedPeer={props.selectedPeer}
-            onSelectedPeerChanged={props.onSelectedPeerChanged}
-          />
-        ) : (
+export const PeerList: React.FunctionComponent<PeerListProps> = props => {
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  return (
+    <div className={style["list-container"]}>
+      <div className={style["list-inner"]} ref={containerRef}>
+        {props.peers.map(item =>
+          shouldShowPeer(props.regionFilter, item) ? (
+            <PeerItem
+              key={item.peerId}
+              peer={item}
+              containerRef={containerRef}
+              selectedPeer={props.selectedPeer}
+              onSelectedPeerChanged={props.onSelectedPeerChanged}
+            />
+          ) : (
             <></>
           )
-      )}
+        )}
+      </div>
     </div>
-  </div>
-)
+  )
+}
 
 export const PeerItem: React.FunctionComponent<PeerProps> = props => {
   let isPeerSelected =
@@ -117,15 +123,19 @@ export const PeerItem: React.FunctionComponent<PeerProps> = props => {
   const divRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
-    if (divRef.current != null && isRegionSelected) {
-      // divRef.current.focus({ preventScroll: true })
-      divRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-        inline: "nearest",
-      })
+    if (
+      isRegionSelected &&
+      divRef.current != null &&
+      props.containerRef.current != null
+    ) {
+      const diff =
+        (props.containerRef.current.clientHeight -
+          divRef.current.clientHeight) /
+        2
+      props.containerRef.current.scrollTop =
+        divRef.current.offsetTop 
     }
-  }, [props])
+  }, [props, divRef])
 
   return (
     <div
@@ -149,11 +159,11 @@ export const PeerItem: React.FunctionComponent<PeerProps> = props => {
         {props.peer.peerState != "Follower" ? (
           <p>{props.peer.peerState}</p>
         ) : (
-            <></>
-          )}
+          <></>
+        )}
       </div>
       <PeerTagList tags={displayTag(props.peer.inActions, props.peer.errors)} />
-    </div >
+    </div>
   )
 }
 

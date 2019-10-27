@@ -2,7 +2,8 @@
 @import "~/styles/layouts.scss";
 
 .container {
-  padding: 2px;
+  padding: 0px 3px;
+  border-radius: 3px;
 
   &.highlight {
     background-color: $yellow;

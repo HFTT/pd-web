@@ -2,6 +2,7 @@ import { async } from "q"
 import { OperatorResp, StoresResp, RegionResp, StoreHotRegionInfosResp } from "~api_response"
 
 export const APIROOT = "http://localhost:2379/pd/api/v1"
+export const DECODEAPI = "http://localhost:4321"
 // export const APIROOT = "http://172.18.0.6:2379/pd/api/v1"
 // export const APIROOT = "http://127.0.0.1:2379/pd/api/v1"
 
@@ -112,6 +113,10 @@ export async function queryHotRead(): Promise<StoreHotRegionInfosResp> {
 
 export async function queryHotWrite(): Promise<StoreHotRegionInfosResp> {
     return sendRequest(`${APIROOT}/hotspot/regions/write`, "GET")    
+}
+
+export async function decodeToTableId(key: string): Promise<string> {
+    return sendRequest(`${DECODEAPI}?decode-table-id=${key}`, "GET")
 }
 
 async function sendRequest(url: string, method: string, body?: any): Promise<any> {

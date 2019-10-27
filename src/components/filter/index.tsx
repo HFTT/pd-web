@@ -78,7 +78,7 @@ const SearchInupt: React.FunctionComponent<SearchInuptProps> = props => {
       <span className={style["input-icon"]}>
         <i className="fas fa-search" />
       </span>
-      <input placeholder="search" onChange={e => props.onSearchInputChange(e.target.value)} />
+      <input placeholder="search" onChange={e => {console.log(e.target.value); props.onSearchInputChange(e.target.value)}} />
     </div>
   )
 }

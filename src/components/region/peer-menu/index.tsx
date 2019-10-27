@@ -50,8 +50,8 @@ export const PeerMenu: React.FunctionComponent<PeerMenuProps> = props => {
         info={[
           { name: "Region Id", value: props.peer.region.regionId },
           { name: "Peer Id", value: props.peer.peerId },
-          // { name: "Start Key", value: props.peer.region.startKey },
-          // { name: "End Key", value: props.peer.region.endKey },
+          { name: "Start TableID", value: props.peer.region.startKey },
+          { name: "End TableID", value: props.peer.region.endKey },
           {
             name: "Size",
             value: props.peer.region.regionSize.toString() + " kvs",
@@ -89,8 +89,8 @@ function displayInfo(info: PeerInAction | PeerError): InfoEntry[] {
       return [{ name: "Target Store", value: info.targetStore.toString() }]
     case "Spliting":
       return [
-        { name: "Start Key", value: info.startKey },
-        { name: "End Key", value: info.endKey },
+        // { name: "Start Key", value: info.startKey },
+        // { name: "End Key", value: info.endKey },
         { name: "Split Keys", value: info.splitKeys.toString() },
         { name: "Policy", value: info.policy },
       ]

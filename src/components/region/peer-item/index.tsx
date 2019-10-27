@@ -100,7 +100,7 @@ export const PeerList: React.FunctionComponent<PeerListProps> = props => {
     <div className={style["list-container"]}>
       <div className={style["list-inner"]} ref={containerRef}>
         {props.peers.map(item =>
-          shouldShowPeer(props.regionFilter, item) ? (
+          shouldShowPeer(props.regionFilter, props.searchInput, item) ? (
             <PeerItem
               key={item.peerId}
               peer={item}
@@ -154,7 +154,8 @@ export const PeerItem: React.FunctionComponent<PeerProps> = props => {
       }}
     >
       <div className={style["title-row"]}>
-        <Highlight isHighlighted={props.searchInput == props.peer.region.regionId}><h4>{props.peer.region.regionId}</h4></Highlight>}
+        <Highlight isHighlighted={props.searchInput == props.peer.region.regionId}><h4>{props.peer.region.regionId}</h4></Highlight>
+        {/* <Highlight isHighlighted={true}><h4>{props.peer.region.regionId}</h4></Highlight> */}
         {/* <h4>{props.peer.region.regionId}</h4> */}
         {props.peer.peerState != "Follower" ? (
           <p>{props.peer.peerState}</p>
@@ -184,6 +185,7 @@ function displayTag(
 
 function shouldShowPeer(
   regionFilter: RegionFilterAttibute,
+  searchInput: string,
   peer: PeerValue
 ): boolean {
   return (
@@ -191,6 +193,6 @@ function shouldShowPeer(
     (peer.inActions.length > 0 && regionFilter.inAction) ||
     (peer.errors.length == 0 &&
       peer.inActions.length == 0 &&
-      regionFilter.normal)
+      regionFilter.normal) || peer.region.regionId == searchInput
   )
 }

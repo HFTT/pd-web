@@ -100,7 +100,7 @@ export const StoresPage: React.FunctionComponent = props => {
           <Filter
             regionAttr={regionFilter}
             onRegionAttrChange={newAttr => setRegionFilter(newAttr)}
-            onSearchInputChange={newValue => {}}
+            onSearchInputChange={newValue => setSearchInput(newValue)}
           />
         </div>
         <div key={1} className={style["store-list-container"]}>

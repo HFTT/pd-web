@@ -12,6 +12,7 @@ import {
   fetchMaxReplicas,
   queryHotRead,
   queryHotWrite,
+  decodeToTableId,
 } from "~api"
 import {
   PeerValue,
@@ -33,10 +34,10 @@ import { string } from "prop-types"
 type idToFlowBytes = { id: string; flowBytes: number }
 
 export async function fetchStoreValues(): Promise<StoreValue[]> {
-  const allStoreResp = await fetchAllStores()
-  const allRegionResponse = await fetchAllRegions()
-  const allOperators = await fetchAllOperators()
-  const maxReplicas = await fetchMaxReplicas()
+  const allStoreResps = await fetchAllStores()
+  const allRegionResps = await fetchAllRegions()
+  const allOps = await fetchAllOperators()
+  const replicasNum = await fetchMaxReplicas()
   const schedulers = await listSchedulers()
 
   const readHotData = await queryHotRead().then(r => {
@@ -77,9 +78,9 @@ export async function fetchStoreValues(): Promise<StoreValue[]> {
     })
   })
 
-  let allRegions: RegionValue[] = []
+  let allRegVals: RegionValue[] = []
 
-  const storeValues = allStoreResp.stores.map(sr => {
+  const allStoreVals = allStoreResps.stores.map(sr => {
     const storeId = _.defaultTo(sr.store.id, 0).toString()
     let storeValue: StoreValue = {
       storeId: storeId,
@@ -108,30 +109,32 @@ export async function fetchStoreValues(): Promise<StoreValue[]> {
     return storeValue
   })
 
-  allRegionResponse.forEach(regionResp => {
+  allRegionResps.forEach(async (regionResp) => {
     const peersCount = (regionResp.peers || []).length
 
+    // const startKeyTableId = await decodeToTableId(regionResp.start_key)
+    // const endKeyTableId = await decodeToTableId(regionResp.end_key)
     const regionValue: RegionValue = {
       regionId: regionResp.id.toString(),
-      startKey: regionResp.start_key,
-      endKey: regionResp.end_key,
+      // startKey: startKeyTableId,
+      // endKey: endKeyTableId,
       regionSize: regionResp.approximate_keys || 0,
       peersCount,
     }
-    allRegions.push(regionValue)
+    allRegVals.push(regionValue)
 
     let errors: PeerError[] = []
-    if (peersCount < maxReplicas) {
+    if (peersCount < replicasNum) {
       errors.push({
         type: "Missing Peer",
         peers: peersCount,
-        expected: maxReplicas,
+        expected: replicasNum,
       })
-    } else if (peersCount > maxReplicas) {
+    } else if (peersCount > replicasNum) {
       errors.push({
         type: "Extra Peer",
         peers: peersCount,
-        expected: maxReplicas,
+        expected: replicasNum,
       })
     }
     const readHotRegion = readHotRegionSet.find(
@@ -154,7 +157,7 @@ export async function fetchStoreValues(): Promise<StoreValue[]> {
     }
 
     const peers = regionResp.peers || []
-    const op = allOperators.find(
+    const op = allOps.find(
       op => op.region_id.toString() === regionValue.regionId
     )
 
@@ -180,30 +183,30 @@ export async function fetchStoreValues(): Promise<StoreValue[]> {
         storeId: inStore,
       }
 
-      const s = storeValues.find(s => s.storeId === inStore)
+      const s = allStoreVals.find(s => s.storeId === inStore)
       if (s != null) {
         s.peers.push(peerValue)
       }
     })
   })
 
-  for (const s of storeValues) {
+  for (const s of allStoreVals) {
     s.peers = s.peers.sort((a, b) =>
       Number(a.region.regionId) < Number(b.region.regionId) ? -1 : 1
     )
   }
 
   // special case for non existing peers
-  for (const op of allOperators) {
+  for (const op of allOps) {
     for (const step of op.steps) {
       switch (step.type) {
         case "add_learner":
         case "add_light_peer":
         case "add_light_learner":
-          const store = storeValues.find(
+          const store = allStoreVals.find(
             store => store.storeId == step.to_store.toString()
           )
-          const region = allRegions.find(
+          const region = allRegVals.find(
             region => region.regionId == op.region_id.toString()
           )
           if (store != null && region != null) {
@@ -226,7 +229,7 @@ export async function fetchStoreValues(): Promise<StoreValue[]> {
     }
   }
 
-  return storeValues.sort((a, b) => (a.storeId < b.storeId ? -1 : 1))
+  return allStoreVals.sort((a, b) => (a.storeId < b.storeId ? -1 : 1))
 }
 
 function containsEvictLeaderScheduler(

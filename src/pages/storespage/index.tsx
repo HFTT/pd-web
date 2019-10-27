@@ -26,6 +26,7 @@ import {
   queryHotRead,
 } from "~/api"
 import { fetchStoreValues } from "~api_converter"
+import { storeUserAction, peerUserAction } from "~api_user_actions"
 
 const randDummyStoreList: StoreValue[] = genDummyStore(10)
 
@@ -37,15 +38,15 @@ export const StoresPage: React.FunctionComponent = props => {
   })
   const [storeList, setStoreList] = useState<StoreValue[]>([])
 
-  useEffect(() => {
-    const id = setInterval(async () => {
-      const stores = await fetchStoreValues()
-      setStoreList(stores)
-    }, 1000)
-    return () => {
-      clearInterval(id)
-    }
-  }, [props])
+  // useEffect(() => {
+  //   const id = setInterval(async () => {
+  //     const stores = await fetchStoreValues()
+  //     setStoreList(stores)
+  //   }, 1000)
+  //   return () => {
+  //     clearInterval(id)
+  //   }
+  // }, [props])
 
   // const [searchInput, setSearchInput] = useState("")
 
@@ -103,13 +104,15 @@ export const StoresPage: React.FunctionComponent = props => {
         </div>
         <div key={1} className={style["store-list-container"]}>
           <StoreList
-            storeItems={storeList}
-            // storeItems={randDummyStoreList}
+            // storeItems={storeList}
+            storeItems={randDummyStoreList}
             regionFilter={regionFilter}
             onStoreUserAction={(store, action) => {
+              storeUserAction(store, action)
               console.log(store, action)
             }}
             onPeerUserAction={(peer, action) => {
+              peerUserAction(peer, action)
               console.log(peer, action)
             }}
           />

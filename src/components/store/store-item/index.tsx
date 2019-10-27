@@ -35,7 +35,6 @@ export type StoreState =
   | "Up"
   | "Down"
   | "Offline"
-  | "Tombstone"
   | "Disconnected"
 
 export type StoreScheduler = {

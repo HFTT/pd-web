@@ -58,7 +58,7 @@ export async function fetchStoreValues(): Promise<StoreValue[]> {
     })
   })
   Object.keys(writeHotData).forEach(storeId => {
-    const x = readHotData[storeId]
+    const x = writeHotData[storeId]
     writeHotStoreSet.push({
       id: storeId,
       flowBytes: x.total_flow_bytes,
@@ -70,6 +70,8 @@ export async function fetchStoreValues(): Promise<StoreValue[]> {
       })
     })
   })
+
+  let allRegions: RegionValue[] = []
 
   const storeValues = allStoreResp.stores.map(sr => {
     const storeId = _.defaultTo(sr.store.id, 0).toString()
@@ -110,6 +112,7 @@ export async function fetchStoreValues(): Promise<StoreValue[]> {
       regionSize: regionResp.approximate_keys || 0,
       peersCount,
     }
+    allRegions.push(regionValue)
 
     let errors: PeerError[] = []
     if (peersCount < maxReplicas) {
@@ -149,15 +152,16 @@ export async function fetchStoreValues(): Promise<StoreValue[]> {
       if (op.region_id.toString() === regionValue.regionId) {
         op.steps.forEach(s => {
           switch (s.type) {
+            case "add_learner":
+            case "add_light_peer":
+            case "add_light_learner":
+              inActions.push({
+                type: "Adding Learner",
+              })
             case "transfer_leader":
               inActions.push({
                 type: "Transfer Leader",
                 targetStore: s.to_store,
-              })
-              break
-            case "add_learner":
-              inActions.push({
-                type: "Adding Learner",
               })
               break
             case "promote_learner":
@@ -205,15 +209,16 @@ export async function fetchStoreValues(): Promise<StoreValue[]> {
         peerState = "Pending"
       }
 
+      const inStore = p.store_id != null ? p.store_id.toString() : ""
       const peerValue: PeerValue = {
         peerId: p.id ? p.id.toString() : "",
         peerState,
         region: regionValue,
         inActions,
         errors,
+        storeId: inStore
       }
 
-      const inStore = (p.store_id && p.store_id.toString()) || ""
       for (const s of storeValues) {
         if (s.storeId === inStore) {
           s.peers.push(peerValue)
@@ -226,6 +231,34 @@ export async function fetchStoreValues(): Promise<StoreValue[]> {
   for (const s of storeValues) {
     s.peers.sort((a, b) => Number(a.region.regionId) < Number(b.region.regionId) ? -1 : 1)
   }
+
+  // special case for non existing peers
+  for (const op of allOperators) {
+    for (const step of op.steps) {
+      switch (step.type) {
+        case "add_learner":
+        case "add_light_peer":
+        case "add_light_learner":
+          const store = storeValues.find(store => store.storeId == step.to_store.toString())
+          const region = allRegions.find(region => region.regionId == op.region_id.toString())
+          if (store != null && region != null) {
+            const peer = store.peers.find(peer => peer.region.regionId == op.region_id.toString())
+            if (peer == null) {
+              store.peers.push({
+                peerId: step.peer_id.toString(),
+                peerState: "Not Exists",
+                region: region,
+                inActions: [{ type: "Adding Learner" }],
+                errors: [],
+                storeId: store.storeId
+              })
+            }
+          }
+          break
+      }
+    }
+  }
+
 
   return storeValues.sort((a, b) => a.storeId < b.storeId ? -1 : 1)
 }

@@ -9,6 +9,7 @@ export type PeerValue = {
   region: RegionValue
   inActions: PeerInAction[]
   errors: PeerError[]
+  storeId: string
 }
 
 export type RegionValue = {

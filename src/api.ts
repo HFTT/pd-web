@@ -25,12 +25,53 @@ export async function fetchAllOperators(): Promise<OperatorResp[]> {
     return sendRequest(`${APIROOT}/operators`, "GET")
 }
 
-export async function upStore(storeId: number): Promise<any> {
+export async function upStore(storeId: string): Promise<any> {
     return sendRequest(`${APIROOT}/store/${storeId}/state?state=Up`, "POST")
 }
 
-export async function deleteStore(storeId: number): Promise<any> {
+export async function deleteStore(storeId: string): Promise<any> {
     return sendRequest(`${APIROOT}/store/${storeId}`, "DELETE")
+}
+
+export async function tombstoneStore(storeId: string): Promise<any> {
+    return sendRequest(`${APIROOT}/store/${storeId}/state?state=Tombstone`, "POST")
+}
+
+export async function addPeer(regionId: string, toStoreId: string): Promise<any> {
+    const body = {
+        name: "add-peer",
+        region_id: Number(regionId),
+        to_store_id: Number(toStoreId),
+    }
+    return sendRequest(`${APIROOT}/operators`, "POST", body)
+}
+
+export async function deletePeer(regionId: string, fromStoreId: string): Promise<any> {
+    const body = {
+        name: "remove-peer",
+        region_id: Number(regionId),
+        store_id: Number(fromStoreId),
+    }
+    return sendRequest(`${APIROOT}/operators`, "POST", body)
+}
+
+export async function grantLeader(regionId: string, StoreId: string): Promise<any> {
+    const body = {
+        name: "transfer-leader",
+        region_id: Number(regionId),
+        to_store_id: Number(StoreId),
+    }
+    return sendRequest(`${APIROOT}/operators`, "POST", body)
+}
+
+export async function transferPeer(regionId: string, fromStoreId: string, toStoreId: string): Promise<any> {
+    const body = {
+        name: "transfer-peer",
+        region_id: Number(regionId),
+        from_store_id: Number(fromStoreId),
+        to_store_id: Number(toStoreId),
+    }
+    return sendRequest(`${APIROOT}/operators`, "POST", body)
 }
 
 export async function transferLeader(regionId: number, toStoreId: number): Promise<void> {
@@ -45,19 +86,19 @@ export async function transferLeader(regionId: number, toStoreId: number): Promi
 export async function splitRegion(regionId: string): Promise<void> {
     return sendRequest(`${APIROOT}/operators`, "POST", {
         name: "split-region",
-        region_id: regionId,
+        region_id: Number(regionId),
         policy: "scan"
     })
 }
 
-export async function addEvictLeaderScheduler(storeId: number): Promise<any> {
+export async function addEvictLeaderScheduler(storeId: string): Promise<any> {
     return sendRequest(`${APIROOT}/schedulers`, "POST", {
         name: `evict-leader-scheduler`,
-        store_id: storeId
+        store_id: Number(storeId)
     })
 }
 
-export async function removeEvictLeaderScheduler(storeId: number): Promise<any> {
+export async function removeEvictLeaderScheduler(storeId: string): Promise<any> {
     return sendRequest(`${APIROOT}/schedulers/evict-leader-scheduler-${storeId}`, "DELETE")
 }
 

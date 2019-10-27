@@ -112,12 +112,12 @@ export async function fetchStoreValues(): Promise<StoreValue[]> {
   allRegionResps.forEach(async (regionResp) => {
     const peersCount = (regionResp.peers || []).length
 
-    // const startKeyTableId = await decodeToTableId(regionResp.start_key)
-    // const endKeyTableId = await decodeToTableId(regionResp.end_key)
+    const startKeyTableId = await decodeToTableId(regionResp.start_key)
+    const endKeyTableId = await decodeToTableId(regionResp.end_key)
     const regionValue: RegionValue = {
       regionId: regionResp.id.toString(),
-      // startKey: startKeyTableId,
-      // endKey: endKeyTableId,
+      startKey: startKeyTableId,
+      endKey: endKeyTableId,
       regionSize: regionResp.approximate_keys || 0,
       peersCount,
     }

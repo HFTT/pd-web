@@ -89,8 +89,8 @@ function displayInfo(info: PeerInAction | PeerError): InfoEntry[] {
       return [{ name: "Target Store", value: info.targetStore.toString() }]
     case "Spliting":
       return [
-        // { name: "Start Key", value: info.startKey },
-        // { name: "End Key", value: info.endKey },
+        { name: "Start Key", value: info.startKey },
+        { name: "End Key", value: info.endKey },
         { name: "Split Keys", value: info.splitKeys.toString() },
         { name: "Policy", value: info.policy },
       ]

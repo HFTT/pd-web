@@ -157,7 +157,8 @@ export async function fetchStoreValues(): Promise<StoreValue[]> {
     const op = allOperators.find(
       op => op.region_id.toString() === regionValue.regionId
     )
-    const inActions = getInActions(peers, op)
+
+    const inActions = getInActions(peers, regionResp, op)
     peers.forEach(p => {
       let peerState: PeerState = "Follower"
       if (p.is_learner) {
@@ -169,11 +170,12 @@ export async function fetchStoreValues(): Promise<StoreValue[]> {
       }
 
       const inStore = p.store_id != null ? p.store_id.toString() : ""
+      const pid = p.id ? p.id.toString() : ""
       const peerValue: PeerValue = {
-        peerId: p.id ? p.id.toString() : "",
+        peerId: pid,
         peerState,
         region: regionValue,
-        inActions: inActions[inStore],
+        inActions: inActions[pid],
         errors,
         storeId: inStore,
       }
@@ -292,12 +294,17 @@ function getStoreError(
 
 function getInActions(
   peers: PeerResp[],
-  opResp: OperatorResp
+  rgResp: RegionResp,
+  opResp?: OperatorResp
 ): { [peerId: string]: PeerInAction[] } {
+  let inActions: { [peerId: string]: PeerInAction[] } = {}
   for (const p of peers) {
     inActions[_.defaultTo(p.id, 0).toString()] = []
   }
-  op.steps.forEach(s => {
+  if (opResp == null) {
+    return inActions
+  }
+  opResp.steps.forEach(s => {
     switch (s.type) {
       case "add_learner":
       case "add_light_peer":
@@ -310,7 +317,7 @@ function getInActions(
           type: "Transfer Leader",
           targetStore: s.to_store,
         })
-        const lid = getLeaderId(regionResp)
+        const lid = getLeaderId(rgResp)
         if (lid != null) {
           inActions[lid].push({
             type: "Transfer Leader",
@@ -356,6 +363,7 @@ function getInActions(
         break
     }
   })
+  return inActions
 }
 
 function getPeerId(storeId: number, peers: PeerResp[]): string | undefined {

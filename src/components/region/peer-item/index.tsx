@@ -2,6 +2,8 @@ import React, { RefObject, useEffect, useRef } from "react"
 import style from "./styles.scss"
 import { PeerTagList, PeerTagValue } from "../peer-tag"
 import { RegionFilterAttibute } from "~components/filter"
+import { Highlight } from "~components/highlight"
+import { GlobalStateConsumer } from "~utils/global-state"
 
 export type PeerValue = {
   peerId: string
@@ -29,57 +31,58 @@ export type PeerState =
 
 export type PeerInAction =
   | {
-      type: "Adding Learner"
-    }
+    type: "Adding Learner"
+  }
   | {
-      type: "Promoting Learner"
-    }
+    type: "Promoting Learner"
+  }
   | {
-      type: "Transfer Leader"
-      targetStore: number
-    }
+    type: "Transfer Leader"
+    targetStore: number
+  }
   | {
-      type: "Removing"
-    }
+    type: "Removing"
+  }
   | {
-      type: "Spliting"
-      startKey: string
-      endKey: string
-      policy: string
-      splitKeys: string[]
-    }
+    type: "Spliting"
+    startKey: string
+    endKey: string
+    policy: string
+    splitKeys: string[]
+  }
   | {
-      type: "Merging"
-      fromRegionId: string
-      toRegionId: string
-      isPassive: boolean
-    }
+    type: "Merging"
+    fromRegionId: string
+    toRegionId: string
+    isPassive: boolean
+  }
 
 export type PeerError =
   | {
-      type: "Missing Peer"
-      peers: number
-      expected: number
-    }
+    type: "Missing Peer"
+    peers: number
+    expected: number
+  }
   | {
-      type: "Extra Peer"
-      peers: number
-      expected: number
-    }
+    type: "Extra Peer"
+    peers: number
+    expected: number
+  }
   | {
-      type: "Hot Read"
-      flowBytes: number
-    }
+    type: "Hot Read"
+    flowBytes: number
+  }
   | {
-      type: "Hot Write"
-      flowBytes: number
-    }
+    type: "Hot Write"
+    flowBytes: number
+  }
 
 type PeerListProps = {
   peers: PeerValue[]
   selectedPeer: PeerValue | null
   regionFilter: RegionFilterAttibute
   onSelectedPeerChanged: (peer: PeerValue | null) => void
+  searchInput: string,
 }
 
 type PeerProps = {
@@ -87,6 +90,7 @@ type PeerProps = {
   containerRef: React.RefObject<HTMLDivElement>
   selectedPeer: PeerValue | null
   onSelectedPeerChanged: (peer: PeerValue | null) => void
+  searchInput: string,
 }
 
 export const PeerList: React.FunctionComponent<PeerListProps> = props => {
@@ -103,10 +107,11 @@ export const PeerList: React.FunctionComponent<PeerListProps> = props => {
               containerRef={containerRef}
               selectedPeer={props.selectedPeer}
               onSelectedPeerChanged={props.onSelectedPeerChanged}
+              searchInput={props.searchInput}
             />
           ) : (
-            <></>
-          )
+              <></>
+            )
         )}
       </div>
     </div>
@@ -137,24 +142,25 @@ export const PeerItem: React.FunctionComponent<PeerProps> = props => {
       }}
       ref={divRef => {
         if (
-          isRegionSelected &&
+          isRegionSelected && !isPeerSelected &&
           divRef != null &&
           props.containerRef.current != null
         ) {
           const diff =
             (props.containerRef.current.clientHeight - divRef.clientHeight) / 2
-            // FIXME: 251 is magic number
+          // FIXME: 251 is magic number
           props.containerRef.current.scrollTop = divRef.offsetTop - 251 - diff
         }
       }}
     >
       <div className={style["title-row"]}>
-        <h4>{props.peer.region.regionId}</h4>
+        <Highlight isHighlighted={props.searchInput == props.peer.region.regionId}><h4>{props.peer.region.regionId}</h4></Highlight>}
+        {/* <h4>{props.peer.region.regionId}</h4> */}
         {props.peer.peerState != "Follower" ? (
           <p>{props.peer.peerState}</p>
         ) : (
-          <></>
-        )}
+            <></>
+          )}
       </div>
       <PeerTagList tags={displayTag(props.peer.inActions, props.peer.errors)} />
     </div>

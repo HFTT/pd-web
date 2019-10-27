@@ -64,6 +64,7 @@ export type InteractionMode =
 type StoreListProps = {
   storeItems: StoreValue[]
   regionFilter: RegionFilterAttibute
+  searchInput: string,
   onStoreUserAction: (store: StoreValue, userAction: StoreUserAction) => void
   onPeerUserAction: (
     peer: PeerValue,
@@ -143,6 +144,7 @@ export const StoreList: React.FunctionComponent<StoreListProps> = props => {
             selection={selection}
             interactionMode={interactionMode}
             regionFilter={props.regionFilter}
+            searchInput={props.searchInput}
             onSelectionChange={setSelection}
           />
         ))}

@@ -36,17 +36,18 @@ export const StoresPage: React.FunctionComponent = props => {
     inAction: true,
     error: true,
   })
+  const [searchInput, setSearchInput] = useState<string>("")
   const [storeList, setStoreList] = useState<StoreValue[]>([])
 
-  // useEffect(() => {
-  //   const id = setInterval(async () => {
-  //     const stores = await fetchStoreValues()
-  //     setStoreList(stores)
-  //   }, 1000)
-  //   return () => {
-  //     clearInterval(id)
-  //   }
-  // }, [props])
+  useEffect(() => {
+    const id = setInterval(async () => {
+      const stores = await fetchStoreValues()
+      setStoreList(stores)
+    }, 1000)
+    return () => {
+      clearInterval(id)
+    }
+  }, [props])
 
   // const [searchInput, setSearchInput] = useState("")
 
@@ -104,9 +105,10 @@ export const StoresPage: React.FunctionComponent = props => {
         </div>
         <div key={1} className={style["store-list-container"]}>
           <StoreList
-            // storeItems={storeList}
-            storeItems={randDummyStoreList}
+            storeItems={storeList}
+            // storeItems={randDummyStoreList}
             regionFilter={regionFilter}
+            searchInput={searchInput}
             onStoreUserAction={(store, action) => {
               storeUserAction(store, action)
               console.log(store, action)

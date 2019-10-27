@@ -68,6 +68,7 @@ type StoreItemProps = {
   selection: Selection
   interactionMode: InteractionMode
   regionFilter: RegionFilterAttibute
+  searchInput: string,
   onSelectionChange: (selection: Selection) => void
 }
 
@@ -168,6 +169,7 @@ export const StoreItem: React.FunctionComponent<StoreItemProps> = props => {
             props.selection.type == "peer" ? props.selection.peer : null
           }
           regionFilter={props.regionFilter}
+          searchInput={props.searchInput}
           onSelectedPeerChanged={peer =>
             peer == null
               ? props.onSelectionChange({ type: "none" })

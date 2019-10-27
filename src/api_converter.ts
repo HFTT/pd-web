@@ -309,14 +309,18 @@ function getInActions(
       case "add_learner":
       case "add_light_peer":
       case "add_light_learner":
-        inActions[s.peer_id].push({
-          type: "Adding Learner",
-        })
+        if (inActions[s.peer_id] != null) {
+          inActions[s.peer_id].push({
+            type: "Adding Learner",
+          })
+        }
       case "transfer_leader":
-        inActions[s.to_store].push({
-          type: "Transfer Leader",
-          targetStore: s.to_store,
-        })
+        if (inActions[s.to_store] != null) {
+          inActions[s.to_store].push({
+            type: "Transfer Leader",
+            targetStore: s.to_store,
+          })
+        }
         const lid = getLeaderId(rgResp)
         if (lid != null) {
           inActions[lid].push({
@@ -326,9 +330,11 @@ function getInActions(
         }
         break
       case "promote_learner":
-        inActions[s.peer_id].push({
-          type: "Promoting Learner",
-        })
+        if (inActions[s.peer_id] != null) {
+          inActions[s.peer_id].push({
+            type: "Promoting Learner",
+          })
+        }
         break
       case "remove_peer":
         const pid = getPeerId(s.from_store, peers)

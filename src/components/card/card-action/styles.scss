@@ -13,13 +13,18 @@
     display: flex;
     flex-direction: column;
     justify-items: center;
-    margin-top: 20px;
+    margin-top: 10px;
     
     button {
       @include card-button;
 
-      &:not(:first-child) {
-        margin-top: 10px;
+      // &:not(:first-child) {
+      //   margin-top: 10px;
+      // }
+
+      &:hover {
+        background-color: $grey-1;
+        transition: all 100ms linear;
       }
     }
   }

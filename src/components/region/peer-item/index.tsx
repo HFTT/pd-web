@@ -120,23 +120,6 @@ export const PeerItem: React.FunctionComponent<PeerProps> = props => {
     props.selectedPeer != null &&
     props.selectedPeer.region.regionId == props.peer.region.regionId
 
-  const divRef = useRef<HTMLDivElement | null>(null)
-
-  useEffect(() => {
-    if (
-      isRegionSelected &&
-      divRef.current != null &&
-      props.containerRef.current != null
-    ) {
-      const diff =
-        (props.containerRef.current.clientHeight -
-          divRef.current.clientHeight) /
-        2
-      props.containerRef.current.scrollTop =
-        divRef.current.offsetTop 
-    }
-  }, [props, divRef])
-
   return (
     <div
       className={[
@@ -152,7 +135,18 @@ export const PeerItem: React.FunctionComponent<PeerProps> = props => {
           props.onSelectedPeerChanged(props.peer)
         }
       }}
-      ref={divRef}
+      ref={divRef => {
+        if (
+          isRegionSelected &&
+          divRef != null &&
+          props.containerRef.current != null
+        ) {
+          const diff =
+            (props.containerRef.current.clientHeight - divRef.clientHeight) / 2
+            // FIXME: 251 is magic number
+          props.containerRef.current.scrollTop = divRef.offsetTop - 251 - diff
+        }
+      }}
     >
       <div className={style["title-row"]}>
         <h4>{props.peer.region.regionId}</h4>

@@ -122,11 +122,11 @@ export const StoreItem: React.FunctionComponent<StoreItemProps> = props => {
   useEffect(() => {
     if (isStoreSelected && cardRef.current != null) {
       //TODO
-      cardRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-        inline: "nearest",
-      })
+      // cardRef.current.scrollIntoView({
+      //   behavior: "smooth",
+      //   block: "nearest",
+      //   inline: "nearest",
+      // })
     }
   }, [props, isStoreSelected, cardRef])
 

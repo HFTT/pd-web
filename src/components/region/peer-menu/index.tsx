@@ -34,11 +34,6 @@ export const PeerMenu: React.FunctionComponent<PeerMenuProps> = props => {
   useEffect(() => {
     if (divRef.current != null) {
       divRef.current.focus({ preventScroll: true })
-      divRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-        inline: "nearest",
-      })
     }
   }, [props])
 

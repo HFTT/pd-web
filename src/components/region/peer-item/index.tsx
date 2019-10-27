@@ -154,7 +154,7 @@ export const PeerItem: React.FunctionComponent<PeerProps> = props => {
       }}
     >
       <div className={style["title-row"]}>
-        <Highlight isHighlighted={props.searchInput == props.peer.region.regionId}><h4>{props.peer.region.regionId}</h4></Highlight>
+        <Highlight isHighlighted={props.searchInput != "" && props.peer.region.regionId.includes(props.searchInput)}><h4>{props.peer.region.regionId}</h4></Highlight>
         {/* <Highlight isHighlighted={true}><h4>{props.peer.region.regionId}</h4></Highlight> */}
         {/* <h4>{props.peer.region.regionId}</h4> */}
         {props.peer.peerState != "Follower" ? (
@@ -193,6 +193,6 @@ function shouldShowPeer(
     (peer.inActions.length > 0 && regionFilter.inAction) ||
     (peer.errors.length == 0 &&
       peer.inActions.length == 0 &&
-      regionFilter.normal) || peer.region.regionId == searchInput
+      regionFilter.normal) || searchInput != "" && peer.region.regionId.includes(searchInput)
   )
 }

@@ -28,7 +28,7 @@
   "dependencies": {
     "@types/lodash": "^4.14.144",
     "lodash": "^4.17.15",
-    "marked": "^0.6.2",
+    "marked": "^0.7.0",
     "query-string": "^6.5.0",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
